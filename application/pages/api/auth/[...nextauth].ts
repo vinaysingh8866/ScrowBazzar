@@ -7,11 +7,6 @@ const options = {
             clientId: process.env.GITHUB_ID as string,
             clientSecret: process.env.GITHUB_SECRET as string,
         }),
-        // Email({
-        //     server: process.env.EMAIL_SERVER as string,
-        //     from: process.env.EMAIL_FROM as string,
-        // }),
-
     ]
 }
 
