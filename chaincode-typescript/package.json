@@ -1,7 +1,7 @@
 {
-    "name": "asset-transfer-basic",
+    "name": "escrow-contract",
     "version": "1.0.0",
-    "description": "Asset Transfer Basic contract implemented in TypeScript",
+    "description": "A escrow contract with token transfer in typescript",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "engines": {

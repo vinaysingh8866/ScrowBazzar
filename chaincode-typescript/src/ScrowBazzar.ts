@@ -28,6 +28,39 @@ const totalSupplyKey = "totalSupply";
   description: "Smart contract for trading Orders",
 })
 export class ScrowBazzarContract extends Contract {
+
+  @Transaction()
+  public async InitLedger(ctx: Context, name: String, symbol: String, decimals: String): Promise<void> {
+    const nameBytes = await ctx.stub.getState(nameKey);
+    if (nameBytes && nameBytes.length > 0) {
+      throw new Error(
+        "contract options are already set, client is not authorized to change them"
+      );
+    }
+
+    await ctx.stub.putState(nameKey, Buffer.from(name));
+    await ctx.stub.putState(symbolKey, Buffer.from(symbol));
+    await ctx.stub.putState(decimalsKey, Buffer.from(decimals));
+    const Orders: Order[] = [
+      {
+        OrderId: "00001",
+        Amount: "100",
+        Account: "123456789",
+        Owner: "Tomoko",
+        Status: "Pending",
+      },
+    ];
+
+    for (const Order of Orders) {
+      Order.docType = "Order";
+      await ctx.stub.putState(
+        Order.OrderId,
+        Buffer.from(stringify(sortKeysRecursive(Order)))
+      );
+      console.info(`Order ${Order.OrderId} initialized`);
+    }
+  }
+
   @Transaction(false)
   async TokenName(ctx: Context): Promise<string> {
     const nameBytes = await ctx.stub.getState(nameKey);
@@ -82,84 +115,62 @@ export class ScrowBazzarContract extends Contract {
   }
 
   @Transaction(true)
-  async Transfer(ctx: Context, to: string, amount: string): Promise<void> {
-    const from = ctx.clientIdentity.getID();
+  async Transfer(ctx: Context,from:string, to: string, amount: string): Promise<boolean> {
 
-    // Get the state from the ledger
-    const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [from]);
-    const fromBalanceBytes = await ctx.stub.getState(fromBalanceKey);
-    if (!fromBalanceBytes || fromBalanceBytes.length === 0) {
-      throw new Error(`the account ${from} does not exist`);
+    const transferResp = await this._transfer(ctx,from, to, amount);
+    if(!transferResp){
+      throw new Error(`the transfer failed`);
     }
-    const fromBalance = parseInt(fromBalanceBytes.toString(), 10);
 
-    const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [to]);
+    const transferEvent = { from, to, amount };
+    ctx.stub.setEvent("Transfer", Buffer.from(stringify(transferEvent)));
 
-    // Calculate the new balance
-    const newFromBalance = fromBalance - parseInt(amount, 10);
-    const newToBalance = parseInt(amount, 10);
+    return true;
 
-    // Write the states back to the ledger
-    await ctx.stub.putState(fromBalanceKey, Buffer.from(newFromBalance.toString()));
-    await ctx.stub.putState(toBalanceKey, Buffer.from(newToBalance.toString()));
   }
 
   @Transaction(true)
-  async Approve(ctx: Context, spender: string, amount: string): Promise<void> {
-    const owner = ctx.clientIdentity.getID();
+  async TransferFrom(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
 
-    // Get the state from the ledger
-    const allowanceKey = ctx.stub.createCompositeKey(allowancePrefix, [
-      owner,
-      spender,
-    ]);
+    //check contract options are already set first to execute the function
+    await this.CheckInitialized(ctx);
 
-    // Write the states back to the ledger
-    await ctx.stub.putState(allowanceKey, Buffer.from(amount));
-  }
-
-  @Transaction(true)
-  async TransferFrom(
-    ctx: Context,
-    from: string,
-    to: string,
-    amount: string
-  ): Promise<void> {
     const spender = ctx.clientIdentity.getID();
 
-    // Get the state from the ledger
-    const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [from]);
-    const fromBalanceBytes = await ctx.stub.getState(fromBalanceKey);
-    if (!fromBalanceBytes || fromBalanceBytes.length === 0) {
-      throw new Error(`the account ${from} does not exist`);
+    // Retrieve the allowance of the spender
+    const allowanceKey = ctx.stub.createCompositeKey(allowancePrefix, [from, spender]);
+    const currentAllowanceBytes = await ctx.stub.getState(allowanceKey);
+
+    if (!currentAllowanceBytes || currentAllowanceBytes.length === 0) {
+      throw new Error(`spender ${spender} has no allowance from ${from}`);
     }
 
-    const fromBalance = parseInt(fromBalanceBytes.toString(), 10);
+    const currentAllowance = parseInt(currentAllowanceBytes.toString());
 
-    const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [to]);
+    // Convert value from string to int
+    const valueInt = parseInt(value);
 
-    const allowanceKey = ctx.stub.createCompositeKey(allowancePrefix, [
-      from,
-      spender,
-    ]);
-    const allowanceBytes = await ctx.stub.getState(allowanceKey);
-    if (!allowanceBytes || allowanceBytes.length === 0) {
-      throw new Error(
-        `the allowance for ${spender} from ${from} does not exist`
-      );
+    // Check if the transferred value is less than the allowance
+    if (currentAllowance < valueInt) {
+      throw new Error('The spender does not have enough allowance to spend.');
     }
 
-    const allowance = parseInt(allowanceBytes.toString(), 10);
+    const transferResp = await this._transfer(ctx, from, to, value);
+    if (!transferResp) {
+      throw new Error('Failed to transfer');
+    }
 
-    // Calculate the new balance
-    const newFromBalance = fromBalance - parseInt(amount, 10);
-    const newToBalance = parseInt(amount, 10);
-    const newAllowance = allowance - parseInt(amount, 10);
+    // Decrease the allowance
+    const updatedAllowance = this.sub(currentAllowance, valueInt);
+    await ctx.stub.putState(allowanceKey, Buffer.from(updatedAllowance.toString()));
+    console.log(`spender ${spender} allowance updated from ${currentAllowance} to ${updatedAllowance}`);
 
-    // Write the states back to the ledger
-    await ctx.stub.putState(fromBalanceKey, Buffer.from(newFromBalance.toString()));
-    await ctx.stub.putState(toBalanceKey, Buffer.from(newToBalance.toString()));
-    await ctx.stub.putState(allowanceKey, Buffer.from(newAllowance.toString()));
+    // Emit the Transfer event
+    const transferEvent = { from, to, value: valueInt };
+    ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
+
+    console.log('transferFrom ended successfully');
+    return true;
   }
 
   @Transaction(true)
@@ -169,14 +180,31 @@ export class ScrowBazzarContract extends Contract {
     // Get the state from the ledger
     const totalSupplyBytes = await ctx.stub.getState(totalSupplyKey);
     const totalSupply = parseInt(totalSupplyBytes.toString(), 10);
+    //check if total supply exists
+    let tSupply = 0;
+    if (!totalSupplyBytes || totalSupplyBytes.length === 0) {
+      tSupply = 0;
+    }
+    else {
+      tSupply = totalSupply;
+    }
 
     const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [to]);
     const toBalanceBytes = await ctx.stub.getState(toBalanceKey);
+
     const toBalance = parseInt(toBalanceBytes.toString(), 10);
+    let balance = 0;
+    if (!toBalanceBytes || toBalanceBytes.length === 0) {
+      balance = 0;
+    }
+    else {
+      balance = toBalance;
+    }
+
 
     // Calculate the new balance
-    const newTotalSupply = totalSupply + parseInt(amount, 10);
-    const newToBalance = toBalance + parseInt(amount, 10);
+    const newTotalSupply = tSupply + parseInt(amount, 10);
+    const newToBalance = balance + parseInt(amount, 10);
 
     // Write the states back to the ledger
     await ctx.stub.putState(totalSupplyKey, Buffer.from(newTotalSupply.toString()));
@@ -204,38 +232,8 @@ export class ScrowBazzarContract extends Contract {
     await ctx.stub.putState(fromBalanceKey, Buffer.from(newFromBalance.toString()));
   }
 
-  
-  @Transaction()
-  public async InitLedger(ctx: Context, name:String, symbol:String, decimals:String): Promise<void> {
-    const nameBytes = await ctx.stub.getState(nameKey);
-    if (nameBytes && nameBytes.length > 0) {
-      throw new Error(
-        "contract options are already set, client is not authorized to change them"
-      );
-    }
 
-    await ctx.stub.putState(nameKey, Buffer.from(name));
-    await ctx.stub.putState(symbolKey, Buffer.from(symbol));
-    await ctx.stub.putState(decimalsKey, Buffer.from(decimals));
-    const Orders: Order[] = [
-      {
-        OrderId: "00001",
-        Amount: "100",
-        Account: "123456789",
-        Owner: "Tomoko",
-        Status: "Pending",
-      },
-    ];
 
-    for (const Order of Orders) {
-      Order.docType = "Order";
-      await ctx.stub.putState(
-        Order.OrderId,
-        Buffer.from(stringify(sortKeysRecursive(Order)))
-      );
-      console.info(`Order ${Order.OrderId} initialized`);
-    }
-  }
 
   @Transaction()
   public async CreateOrder(
@@ -331,4 +329,84 @@ export class ScrowBazzarContract extends Contract {
     }
     return JSON.stringify(allResults);
   }
+
+
+  async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
+
+    if (from === to) {
+      throw new Error('cannot transfer to and from same client account');
+    }
+
+    // Convert value from string to int
+    const valueInt = parseInt(value);
+
+    if (valueInt < 0) { // transfer of 0 is allowed in ERC20, so just validate against negative amounts
+      throw new Error('transfer amount cannot be negative');
+    }
+
+    // Retrieve the current balance of the sender
+    const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [from]);
+    const fromCurrentBalanceBytes = await ctx.stub.getState(fromBalanceKey);
+
+    if (!fromCurrentBalanceBytes || fromCurrentBalanceBytes.length === 0) {
+      throw new Error(`client account ${from} has no balance`);
+    }
+
+    const fromCurrentBalance = parseInt(fromCurrentBalanceBytes.toString());
+
+    // Check if the sender has enough tokens to spend.
+    if (fromCurrentBalance < valueInt) {
+      throw new Error(`client account ${from} has insufficient funds.`);
+    }
+
+    // Retrieve the current balance of the recepient
+    const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [to]);
+    const toCurrentBalanceBytes = await ctx.stub.getState(toBalanceKey);
+
+    let toCurrentBalance;
+    // If recipient current balance doesn't yet exist, we'll create it with a current balance of 0
+    if (!toCurrentBalanceBytes || toCurrentBalanceBytes.length === 0) {
+      toCurrentBalance = 0;
+    } else {
+      toCurrentBalance = parseInt(toCurrentBalanceBytes.toString());
+    }
+
+    // Update the balance
+    const fromUpdatedBalance = this.sub(fromCurrentBalance, valueInt);
+    const toUpdatedBalance = this.add(toCurrentBalance, valueInt);
+
+    await ctx.stub.putState(fromBalanceKey, Buffer.from(fromUpdatedBalance.toString()));
+    await ctx.stub.putState(toBalanceKey, Buffer.from(toUpdatedBalance.toString()));
+
+    console.log(`client ${from} balance updated from ${fromCurrentBalance} to ${fromUpdatedBalance}`);
+    console.log(`recipient ${to} balance updated from ${toCurrentBalance} to ${toUpdatedBalance}`);
+
+    return true;
+  }
+
+  add(a: number, b: number) {
+    let c = a + b;
+    if (a !== c - b || b !== c - a) {
+      throw new Error(`Math: addition overflow occurred ${a} + ${b}`);
+    }
+    return c;
+  }
+
+  // add two number checking for overflow
+  sub(a: number, b: number) {
+    let c = a - b;
+    if (a !== c + b || b !== a - c) {
+      throw new Error(`Math: subtraction overflow occurred ${a} - ${b}`);
+    }
+    return c;
+  }
+  @Transaction(false)
+  async CheckInitialized(ctx: Context) {
+    const nameBytes = await ctx.stub.getState(nameKey);
+    if (!nameBytes || nameBytes.length === 0) {
+      throw new Error('contract options need to be set before calling any function, call Initialize() to initialize contract');
+    }
+  }
+
+
 }
