@@ -233,16 +233,6 @@ export class ScrowBazzarContract extends Contract {
   }
 
 
-  @Transaction()
-  public async InitLedger(ctx: Context, name: String, symbol: String, decimals: String): Promise<void> {
-    const nameBytes = await ctx.stub.getState(nameKey);
-    if (nameBytes && nameBytes.length > 0) {
-      throw new Error(
-        "contract options are already set, client is not authorized to change them"
-      );
-    }
-
-
 
   @Transaction()
   public async CreateOrder(
