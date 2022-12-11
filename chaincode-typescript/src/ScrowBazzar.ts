@@ -16,7 +16,7 @@ import { Order } from "./order";
 // Define objectType names for prefix
 const balancePrefix = "balance";
 const allowancePrefix = "allowance";
-
+const orderListPrefix = "orderList";
 // Define key names for options
 const nameKey = "name";
 const symbolKey = "symbol";
@@ -240,7 +240,7 @@ export class ScrowBazzarContract extends Contract {
     orderId: string,
     amount: string,
     owner: string,
-    account: string
+    seller: string
   ): Promise<boolean> {
 
 
@@ -266,7 +266,7 @@ export class ScrowBazzarContract extends Contract {
       OrderId: orderId,
       Amount: amount,
       Owner: owner,
-      Account: account,
+      Account: seller,
     };
     await ctx.stub.putState(
       orderId,
@@ -291,9 +291,44 @@ export class ScrowBazzarContract extends Contract {
     const newOwnerBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
     await ctx.stub.putState(newOwnerBalanceKey, Buffer.from(newOwnerBalance.toString()));
 
+    // add order to seller's order list
+    const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
+    const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
+    let orderList = [];
+    if (!sellerOrderListBytes || sellerOrderListBytes.length === 0) {
+      orderList = [];
+    }
+    else {
+      orderList = JSON.parse(sellerOrderListBytes.toString());
+    }
+    orderList.push(orderId);
+    await ctx.stub.putState(sellerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
+
+    // add order to owner's order list
+    const ownerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [owner]);
+    const ownerOrderListBytes = await ctx.stub.getState(ownerOrderListKey);
+    let ownerOrderList = [];
+    if (!ownerOrderListBytes || ownerOrderListBytes.length === 0) {
+      ownerOrderList = [];
+    }
+    else {
+      ownerOrderList = JSON.parse(ownerOrderListBytes.toString());
+    }
+    ownerOrderList.push(orderId);
+    await ctx.stub.putState(ownerOrderListKey, Buffer.from(stringify(sortKeysRecursive(ownerOrderList))));
     return true;
   }
 
+  @Transaction(false)
+  public async GetOrderList(ctx: Context, account: string): Promise<string> {
+    const orderListKey = ctx.stub.createCompositeKey(orderListPrefix, [account]);
+    const orderListBytes = await ctx.stub.getState(orderListKey);
+    if (!orderListBytes || orderListBytes.length === 0) {
+      throw new Error(`the order list for ${account} does not exist`);
+    }
+    return orderListBytes.toString();
+  }
+  
 
 
   @Transaction(false)
