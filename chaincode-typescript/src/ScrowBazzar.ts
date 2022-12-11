@@ -274,23 +274,10 @@ export class ScrowBazzarContract extends Contract {
     );
 
     //transfer amount from owner to escrow account
-    const escrowBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
-    const escrowBalanceBytes = await ctx.stub.getState(escrowBalanceKey);
-    let bal = 0;
-    if (!escrowBalanceBytes || escrowBalanceBytes.length === 0) {
-      bal = 0;
+    const transferResp = await this._transfer(ctx, owner, seller, amount);
+    if (!transferResp) {
+      throw new Error('Failed to transfer');
     }
-    else {
-      bal = parseInt(escrowBalanceBytes.toString(), 10);
-    }
-    const newEscrowBalance = bal + parseInt(amount, 10);
-    await ctx.stub.putState(escrowBalanceKey, Buffer.from(newEscrowBalance.toString()));
-
-    //update owner balance
-    const newOwnerBalance = balance - parseInt(amount, 10);
-    const newOwnerBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
-    await ctx.stub.putState(newOwnerBalanceKey, Buffer.from(newOwnerBalance.toString()));
-
     // add order to seller's order list
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
     const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
