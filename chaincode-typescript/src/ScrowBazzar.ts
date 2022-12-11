@@ -115,10 +115,10 @@ export class ScrowBazzarContract extends Contract {
   }
 
   @Transaction(true)
-  async Transfer(ctx: Context,from:string, to: string, amount: string): Promise<boolean> {
+  async Transfer(ctx: Context, from: string, to: string, amount: string): Promise<boolean> {
 
-    const transferResp = await this._transfer(ctx,from, to, amount);
-    if(!transferResp){
+    const transferResp = await this._transfer(ctx, from, to, amount);
+    if (!transferResp) {
       throw new Error(`the transfer failed`);
     }
 
@@ -274,7 +274,7 @@ export class ScrowBazzarContract extends Contract {
     );
 
     //transfer amount from owner to escrow account
-    const transferResp = await this._transfer(ctx, owner, seller, amount);
+    const transferResp = await this._transfer(ctx, owner, escrowKey, amount);
     if (!transferResp) {
       throw new Error('Failed to transfer');
     }
@@ -315,7 +315,7 @@ export class ScrowBazzarContract extends Contract {
     }
     return orderListBytes.toString();
   }
-  
+
 
 
   @Transaction(false)
@@ -345,6 +345,98 @@ export class ScrowBazzarContract extends Contract {
       id,
       Buffer.from(stringify(sortKeysRecursive(order)))
     );
+  }
+
+  @Transaction()
+  public async ApproveOrder(
+    ctx: Context,
+    id: string,
+  ): Promise<boolean> {
+    const exists = await this.OrderExists(ctx, id);
+    if (!exists) {
+      throw new Error(`The Order ${id} does not exist`);
+    }
+
+    const orderJSON = await ctx.stub.getState(id);
+    const order = JSON.parse(orderJSON.toString()) as Order;
+    order.Status = "Approved";
+    ctx.stub.putState(
+      id,
+      Buffer.from(stringify(sortKeysRecursive(order)))
+    );
+    return true;
+  }
+
+  @Transaction()
+  public async ProcessOrder(
+    ctx: Context,
+    id: string,
+  ): Promise<boolean> {
+    const exists = await this.OrderExists(ctx, id);
+    if (!exists) {
+      throw new Error(`The Order ${id} does not exist`);
+    }
+
+    const orderJSON = await ctx.stub.getState(id);
+    const order = JSON.parse(orderJSON.toString()) as Order;
+    order.Status = "Processing";
+    ctx.stub.putState(
+      id,
+      Buffer.from(stringify(sortKeysRecursive(order)))
+    );
+    return true;
+  }
+
+  @Transaction()
+  public async CompleteOrder(
+    ctx: Context,
+    id: string,
+  ): Promise<boolean> {
+    const exists = await this.OrderExists(ctx, id);
+    if (!exists) {
+      throw new Error(`The Order ${id} does not exist`);
+    }
+
+    const orderJSON = await ctx.stub.getState(id);
+    const order = JSON.parse(orderJSON.toString()) as Order;
+    order.Status = "Completed";
+    ctx.stub.putState(
+      id,
+      Buffer.from(stringify(sortKeysRecursive(order)))
+    );
+    return true;
+  }
+
+  @Transaction()
+  public async CompleteEscrow(
+    ctx: Context,
+    id: string,
+  ): Promise<boolean> {
+    const exists = await this.OrderExists(ctx, id);
+    if (!exists) {
+      throw new Error(`The Order ${id} does not exist`);
+    }
+
+    const orderJSON = await ctx.stub.getState(id);
+    const order = JSON.parse(orderJSON.toString()) as Order;
+    //check if order is completed
+    if (order.Status !== "Completed") {
+      throw new Error(`The Order ${id} is not completed`);
+    }
+    //trnasfer money to seller
+    const seller = order.Account;
+    const amount = order.Amount;
+    const transferResp = await this.Transfer(ctx, escrowKey, seller, amount);
+    if (!transferResp) {
+      throw new Error(`Failed to transfer money to seller`);
+    }
+    //update order status to escrow completed
+    order.Status = "EscrowCompleted";
+    ctx.stub.putState(
+      id,
+      Buffer.from(stringify(sortKeysRecursive(order)))
+    );
+    return true;
   }
 
   @Transaction()
