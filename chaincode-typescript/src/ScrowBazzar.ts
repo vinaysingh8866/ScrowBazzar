@@ -22,7 +22,7 @@ const nameKey = "name";
 const symbolKey = "symbol";
 const decimalsKey = "decimals";
 const totalSupplyKey = "totalSupply";
-
+const escrowKey = "escrow";
 @Info({
   title: "ScrowBazzar",
   description: "Smart contract for trading Orders",
@@ -204,9 +204,9 @@ export class ScrowBazzarContract extends Contract {
     await ctx.stub.putState(fromBalanceKey, Buffer.from(newFromBalance.toString()));
   }
 
-  
+
   @Transaction()
-  public async InitLedger(ctx: Context, name:String, symbol:String, decimals:String): Promise<void> {
+  public async InitLedger(ctx: Context, name: String, symbol: String, decimals: String): Promise<void> {
     const nameBytes = await ctx.stub.getState(nameKey);
     if (nameBytes && nameBytes.length > 0) {
       throw new Error(
@@ -244,7 +244,22 @@ export class ScrowBazzarContract extends Contract {
     amount: string,
     owner: string,
     account: string
-  ): Promise<void> {
+  ): Promise<boolean> {
+
+
+    //check if owner has enough balance
+    const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
+    const balanceBytes = await ctx.stub.getState(balanceKey);
+    if (!balanceBytes || balanceBytes.length === 0) {
+      throw new Error(`the balance for ${owner} does not exist`);
+    }
+    const balance = parseInt(balanceBytes.toString(), 10);
+    if (balance < parseInt(amount, 10)) {
+      throw new Error(`the balance for ${owner} is not enough`);
+    }
+
+
+
     const exists = await this.OrderExists(ctx, orderId);
     if (exists) {
       throw new Error(`The Order ${orderId} already exists`);
@@ -260,7 +275,29 @@ export class ScrowBazzarContract extends Contract {
       orderId,
       Buffer.from(stringify(sortKeysRecursive(order)))
     );
+
+    //transfer amount from owner to escrow account
+    const escrowBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
+    const escrowBalanceBytes = await ctx.stub.getState(escrowBalanceKey);
+    let bal = 0;
+    if (!escrowBalanceBytes || escrowBalanceBytes.length === 0) {
+      bal = 0;
+    }
+    else {
+      bal = parseInt(escrowBalanceBytes.toString(), 10);
+    }
+    const newEscrowBalance = bal + parseInt(amount, 10);
+    await ctx.stub.putState(escrowBalanceKey, Buffer.from(newEscrowBalance.toString()));
+
+    //update owner balance
+    const newOwnerBalance = balance - parseInt(amount, 10);
+    const newOwnerBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner]);
+    await ctx.stub.putState(newOwnerBalanceKey, Buffer.from(newOwnerBalance.toString()));
+
+    return true;
   }
+
+
 
   @Transaction(false)
   public async ReadOrder(ctx: Context, id: string): Promise<string> {
