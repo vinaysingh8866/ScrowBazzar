@@ -50,8 +50,132 @@ app.get("/init", async (req: any, res: any) => {
         res.send(prettyJSONString(initval.toString()));
     } catch (err) {
         console.log(err);
+        res.send(err);
     }
 });
+// '{"function":"Mint","Args":["vinay","20000"]}'
+app.get("/mint_tokens", async (req: any, res: any) => {
+    const { user, amount } = req.query;
+    try {
+        const mintval = await contract.submitTransaction('Mint', user, amount);
+        res.send(prettyJSONString(mintval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res.send(err);
+    }
+});
+
+// '{"function":"BalanceOf","Args":["vinay"]}'
+app.get("/balance_of", async (req: any, res: any) => {
+    const { user } = req.query;
+    try {
+        const balval = await contract.submitTransaction('BalanceOf', user);
+        res.send(prettyJSONString(balval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"CreateOrder","Args":["0001","1000","vinay","hdsp"]}'
+app.get("/create_order", async (req: any, res: any) => {
+    const { orderid, amount, buyer, seller } = req.query;
+    try {
+        const orderval = await contract.submitTransaction('CreateOrder', orderid, amount, buyer, seller);
+        
+        res.send(prettyJSONString(orderval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"GetOrderList","Args":["hdsp"]}'
+
+app.get("/get_order_list", async (req: any, res: any) => {
+    const { seller } = req.query;
+    try {
+        const orderListVal = await contract.submitTransaction('GetOrderList', seller);
+        
+        res.send(prettyJSONString(orderListVal.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"ApproveOrder","Args":["0001"]}'
+app.get("/approve_order", async (req: any, res: any) => {
+    const { orderid } = req.query;
+    try {
+        const approveval = await contract.submitTransaction('ApproveOrder', orderid);
+        res.send(prettyJSONString(approveval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"ProcessOrder","Args":["0001"]}'
+app.get("/process_order", async (req: any, res: any) => {
+    const { orderid } = req.query;
+    try {
+        const processval = await contract.submitTransaction('ProcessOrder', orderid);
+        res.send(prettyJSONString(processval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"CompleteOrder","Args":["0001"]}'
+app.get("/complete_order", async (req: any, res: any) => {
+    const { orderid } = req.query;
+    try {
+        const completeval = await contract.submitTransaction('CompleteOrder', orderid);
+        res.send(prettyJSONString(completeval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+// '{"function":"CompleteEscrow","Args":["0001"]}'
+app.get("/complete_escrow", async (req: any, res: any) => {
+    const { orderid } = req.query;
+    try {
+        const escrowval = await contract.submitTransaction('CompleteEscrow', orderid);
+        res.send(prettyJSONString(escrowval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+
+
+
 
 // start the Express server
 app.listen(port, () => {
