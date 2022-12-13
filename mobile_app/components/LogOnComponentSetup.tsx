@@ -6,13 +6,70 @@ import {
   VStack,
   Select,
   CheckIcon,
+  Icon,
 } from "native-base";
 import Animated, {
   SlideInLeft,
   SlideInRight,
   SlideOutLeft,
 } from "react-native-reanimated";
-import { useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  ReactElement,
+  ReactFragment,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
+import { Entypo } from "@expo/vector-icons";
+
+import AppTitle from "./AppTitle";
+import AppSubtitle from "./AppSubtitile";
+import AppInput from "./AppInput";
+import AppButton from "./AppButton";
+
+const LogInButtons = ({
+  setState,
+  state,
+  onPress,
+}: {
+  setState: any;
+  state: number;
+  onPress: any;
+}) => {
+  return (
+    <HStack
+      w="100%"
+      h="50px"
+      mx="auto"
+      rounded="lg"
+      position={"absolute"}
+      bottom="20%"
+      alignSelf={"center"}
+    >
+      {state > 0 && (
+        <AppButton onPress={() => setState(state - 1)} width="20%">
+          <Icon
+            as={Entypo}
+            name="chevron-left"
+            color="white"
+            size={"lg"}
+          ></Icon>
+        </AppButton>
+      )}
+      <AppButton
+        onPress={() => {
+          setState(state + 1);
+          onPress ? onPress() : () => {};
+        }}
+        width={state == 0 ? "100%" : "75%"}
+      >
+        Next
+      </AppButton>
+    </HStack>
+  );
+};
+
 const LogOnComponentSetup = ({
   setState,
   state,
@@ -50,57 +107,16 @@ const PhoneNumberVerification = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Verify Your Phone
-        </Text>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
+        <AppTitle>Verify Your Phone</AppTitle>
+        <AppSubtitle>
           We will send you a verification code to your phone number. Please
           enter your phone number below.
-        </Text>
-        <HStack w="100%" h="10%" mx="auto" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="20%"
-            h="100%"
-            rounded="lg"
-            placeholder="Code"
-            _placeholder={{ color: "white" }}
-            color="white"
-          />
-          <Input
-            bg="#1E2C3D"
-            w="80%"
-            h="100%"
-            rounded="lg"
-            placeholder="Phone Number"
-            _placeholder={{ color: "white" }}
-            color="white"
-          />
+        </AppSubtitle>
+        <HStack w="100%" h="50px" mx="auto" rounded="lg">
+          <AppInput width="20%" placeholder="Code"></AppInput>
+          <AppInput width="75%" placeholder="Phone Number"></AppInput>
         </HStack>
-
-        <Button
-          onPress={() => setState(state + 1)}
-          bg="#4030FB"
-          w="90%"
-          h="10"
-          mx="auto"
-          my="80%"
-          rounded="full"
-          _text={{ color: "white" }}
-        >
-          Next
-        </Button>
+        <LogInButtons state={state} setState={setState}></LogInButtons>
       </VStack>
     </Animated.View>
   );
@@ -118,108 +134,30 @@ const VerificationCode = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Verify Your Phone
-        </Text>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
+        <AppTitle>Verify Your Phone</AppTitle>
+        <AppSubtitle>
           We have sent you a verification code to your phone number. Please
           enter the code below.
-        </Text>
+        </AppSubtitle>
         {/** 4 input boxes that take signle digit as input and switch focus on index change**/}
-        <HStack space="2" w="100%" h="10%" mx="4" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="20%"
-            h="100%"
-            rounded="lg"
-            placeholder="-"
-            _placeholder={{ color: "white" }}
-            color="white"
-            value={code[0]}
-            onChangeText={(text) => {
-              setCode([text, code[1], code[2], code[3]]);
-              setIndex(1);
-            }}
-            maxLength={1}
-            keyboardType="number-pad"
-            isFocused={index === 0}
-          />
-          <Input
-            bg="#1E2C3D"
-            w="20%"
-            h="100%"
-            rounded="lg"
-            placeholder="-"
-            _placeholder={{ color: "white" }}
-            color="white"
-            value={code[1]}
-            onChangeText={(text) => {
-              setCode([code[0], text, code[2], code[3]]);
-              setIndex(2);
-            }}
-            maxLength={1}
-            keyboardType="number-pad"
-            isFocused={index === 1}
-          />
-          <Input
-            bg="#1E2C3D"
-            w="20%"
-            h="100%"
-            rounded="lg"
-            placeholder="-"
-            _placeholder={{ color: "white" }}
-            color="white"
-            value={code[2]}
-            onChangeText={(text) => {
-              setCode([code[0], code[1], text, code[3]]);
-              setIndex(3);
-            }}
-            maxLength={1}
-            keyboardType="number-pad"
-            isFocused={index === 2}
-          />
-          <Input
-            bg="#1E2C3D"
-            w="20%"
-            h="100%"
-            rounded="lg"
-            placeholder="-"
-            _placeholder={{ color: "white" }}
-            color="white"
-            value={code[3]}
-            onChangeText={(text) => {
-              setCode([code[0], code[1], code[2], text]);
-              setIndex(4);
-            }}
-            maxLength={1}
-            keyboardType="number-pad"
-            isFocused={index === 3}
-          />
+        <HStack w="100%" h="50px" rounded="lg">
+          {[0, 1, 2, 3].map((x) => (
+            <AppInput
+              width="20%"
+              placeholder="-"
+              value={code[x]}
+              onChangeText={(text) => {
+                setCode(code.slice(0, x).concat([text], code.slice(x + 1, 4)));
+                setIndex(x + 1);
+              }}
+              maxLength={1}
+              keyboardType="number-pad"
+              isFocused={index === x}
+            ></AppInput>
+          ))}
         </HStack>
-
-        <Button
-          onPress={() => setState(state + 1)}
-          bg="#4030FB"
-          w="90%"
-          h="10"
-          mx="auto"
-          my="80%"
-          rounded="full"
-          _text={{ color: "white" }}
-        >
-          Next
-        </Button>
+        <AppTitle>{code}</AppTitle>
+        <LogInButtons state={state} setState={setState}></LogInButtons>
       </VStack>
     </Animated.View>
   );
@@ -229,18 +167,9 @@ const MobileNumberVerified = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Number Is Verified
-        </Text>
+        <AppTitle>Number Is Verified</AppTitle>
 
-        <Button onPress={() => setState(state + 1)} bg="#4030FB" w="90%" h="10">
-          Next
-        </Button>
+        <LogInButtons state={state} setState={setState}></LogInButtons>
       </VStack>
     </Animated.View>
   );
@@ -275,58 +204,31 @@ const AddPersonalDetails = ({ setState, state }: any) => {
     await save("name", user.name);
     //add user email to app storage
     await save("email", user.email);
+    console.log("DONE");
     console.log(res);
   }
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Add Personal Details
-        </Text>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
-          Please enter your personal details below.
-        </Text>
-        <HStack w="100%" mx="auto" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="100%"
-            h="10"
-            rounded="lg"
+        <AppTitle>Add Personal Details</AppTitle>
+        <AppSubtitle>Please enter your personal details below.</AppSubtitle>
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            width="100%"
             placeholder="Full Name"
-            _placeholder={{ color: "white" }}
-            color="white"
             value={name}
             onChangeText={(text) => setName(text)}
-          />
+          ></AppInput>
         </HStack>
-
-        {/** Input box for entering email**/}
-        <HStack w="100%" mx="auto" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="100%"
-            h="10"
-            rounded="lg"
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            width="100%"
             placeholder="Email"
-            _placeholder={{ color: "white" }}
-            color="white"
             value={email}
             onChangeText={(text) => setEmail(text)}
-          />
+          ></AppInput>
         </HStack>
-
-        <HStack space="2" w="100%" mx="auto" rounded="lg">
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <Select
             bg="#1E2C3D"
             w="100"
@@ -411,30 +313,14 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             })}
           </Select>
         </HStack>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
+        <AppSubtitle>
           By clicking next you agree to our terms and conditions and privacy
-        </Text>
-        <Button
-          onPress={() => {
-            setState(state + 1);
-            addUserToFirbase();
-          }}
-          bg="#4030FB"
-          w="90%"
-          h="10"
-          mx="auto"
-          my="40%"
-          rounded="full"
-          _text={{ color: "white" }}
-        >
-          Next
-        </Button>
+        </AppSubtitle>
+        <LogInButtons
+          state={state}
+          setState={setState}
+          onPress={() => addUserToFirbase()}
+        ></LogInButtons>
       </VStack>
     </Animated.View>
   );
@@ -447,40 +333,19 @@ const RecoveryPhrase = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Recovery Phrase
-        </Text>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
+        <AppTitle>Recovery Phrase</AppTitle>
+        <AppSubtitle>
           Please copy and save your recovery phrase below.
-        </Text>
-        <HStack w="100%" mx="auto" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="100%"
-            h="10"
-            rounded="lg"
+        </AppSubtitle>
+        <HStack h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            width="100%"
             placeholder="Recovery Phrase"
-            _placeholder={{ color: "white" }}
-            color="white"
             value={phrase}
             onChangeText={(text) => setPhrase(text)}
-          />
+          ></AppInput>
         </HStack>
-
-        <Button onPress={() => setState(state + 1)} bg="#4030FB" w="90%" h="10">
-          Next
-        </Button>
+        <LogInButtons state={state} setState={setState}></LogInButtons>
       </VStack>
     </Animated.View>
   );
@@ -492,39 +357,19 @@ const CreateWalletPin = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text
-          color="#E4FF41"
-          fontFamily={"Poppins_400Regular"}
-          mx="2"
-          fontSize={"20"}
-        >
-          Create Wallet Pin
-        </Text>
-        <Text
-          color={"white"}
-          fontFamily={"Poppins_400Regular"}
-          mx="auto"
-          fontSize={"15"}
-          my="10%"
-        >
+        <AppTitle>Create Wallet Pin</AppTitle>
+        <AppSubtitle>
           Please enter a 4 digit pin to secure your wallet.
-        </Text>
-        <HStack w="100%" mx="auto" my="10%" rounded="lg">
-          <Input
-            bg="#1E2C3D"
-            w="100%"
-            h="10"
-            rounded="lg"
+        </AppSubtitle>
+        <HStack h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            width="100%"
             placeholder="Pin"
-            _placeholder={{ color: "white" }}
-            color="white"
             value={pin}
             onChangeText={(text) => setPin(text)}
-          />
+          ></AppInput>
         </HStack>
-        <Button onPress={() => setState(state + 1)} bg="#4030FB" w="90%" h="10">
-          Next
-        </Button>
+        <LogInButtons state={state} setState={setState}></LogInButtons>
       </VStack>
     </Animated.View>
   );
