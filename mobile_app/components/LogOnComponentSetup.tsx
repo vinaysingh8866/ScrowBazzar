@@ -50,12 +50,17 @@ const PhoneNumberVerification = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Verify Your Phone
         </Text>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
@@ -112,13 +117,18 @@ const VerificationCode = ({ setState, state }: any) => {
   }, [code, index]);
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
-     <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+      <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Verify Your Phone
         </Text>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
@@ -219,7 +229,12 @@ const MobileNumberVerified = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Number Is Verified
         </Text>
 
@@ -231,6 +246,10 @@ const MobileNumberVerified = ({ setState, state }: any) => {
   );
 };
 
+import { getDatabase, ref, set } from "firebase/database";
+import db from "../firebase";
+import { save } from "../utils/Storage";
+import { Platform } from "react-native";
 const AddPersonalDetails = ({ setState, state }: any) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -238,15 +257,40 @@ const AddPersonalDetails = ({ setState, state }: any) => {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
+  async function addUserToFirbase() {
+    // get db instance from firebase
+
+    // create a new user object
+    const user = {
+      name: name,
+      email: email,
+      dob: day + "/" + month + "/" + year,
+    };
+    //replace the special characters in the email with a _
+    user.email = user.email.replace(/[.#$[\]]/g, "_").toLocaleLowerCase();
+
+    // add the user to the database
+    const res = await set(ref(db, "users/" + user.email + "/info"), user);
+    //add user name to app storage
+    await save("name", user.name);
+    //add user email to app storage
+    await save("email", user.email);
+    console.log(res);
+  }
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Add Personal Details
         </Text>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
@@ -262,6 +306,8 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             placeholder="Full Name"
             _placeholder={{ color: "white" }}
             color="white"
+            value={name}
+            onChangeText={(text) => setName(text)}
           />
         </HStack>
 
@@ -275,6 +321,8 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             placeholder="Email"
             _placeholder={{ color: "white" }}
             color="white"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
           />
         </HStack>
 
@@ -293,6 +341,12 @@ const AddPersonalDetails = ({ setState, state }: any) => {
               bg: "#4030FB",
               endIcon: <CheckIcon size={4} />,
             }}
+            shouldRasterizeIOS={true}
+            tintColor="#4030FB"
+            mode="dropdown"
+            backgroundColor={"#1E2C3D"}
+            background={"#1E2C3D"}
+            bgColor={"#1E2C3D"}
           >
             {Array.from(Array(31).keys()).map((i) => {
               return (
@@ -319,9 +373,11 @@ const AddPersonalDetails = ({ setState, state }: any) => {
               endIcon: <CheckIcon size={4} />,
             }}
           >
+            <Text>{month}</Text>
             {Array.from(Array(12).keys()).map((i) => {
               return (
                 <Select.Item
+                  my="1"
                   key={i}
                   label={i.toString()}
                   value={i.toString()}
@@ -357,7 +413,7 @@ const AddPersonalDetails = ({ setState, state }: any) => {
         </HStack>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
@@ -365,7 +421,10 @@ const AddPersonalDetails = ({ setState, state }: any) => {
           By clicking next you agree to our terms and conditions and privacy
         </Text>
         <Button
-          onPress={() => setState(state + 1)}
+          onPress={() => {
+            setState(state + 1);
+            addUserToFirbase();
+          }}
           bg="#4030FB"
           w="90%"
           h="10"
@@ -388,12 +447,17 @@ const RecoveryPhrase = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Recovery Phrase
         </Text>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
@@ -428,12 +492,17 @@ const CreateWalletPin = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
       <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
-        <Text color="#E4FF41" Poppins_400Regular mx="2" fontSize={"20"}>
+        <Text
+          color="#E4FF41"
+          fontFamily={"Poppins_400Regular"}
+          mx="2"
+          fontSize={"20"}
+        >
           Create Wallet Pin
         </Text>
         <Text
           color={"white"}
-          Poppins_400Regular
+          fontFamily={"Poppins_400Regular"}
           mx="auto"
           fontSize={"15"}
           my="10%"
