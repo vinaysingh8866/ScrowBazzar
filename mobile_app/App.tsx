@@ -35,7 +35,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import WalletScreen from "./pages/WalletScreen";
 import { deleteValueFor, getValueFor } from "./utils/Storage";
-import ProfileScreen from "./pages/ProfileScreen";
+import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
 const Tab = createBottomTabNavigator();
 //deleteValueFor("name");
 
@@ -261,13 +261,28 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   const [numberOfItems, setNumberOfItems] = useState(1);
 
   async function orderService() {
+    const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
-    //replace . with _ in email
     email = email.replace(".", "_");
     const sellerMail = modelService.email.replace(".", "_");
     const userRef = ref(db, "users/" + email + "/orders");
     const sellerRef = ref(db, "users/" + sellerMail + "/orders");
+    const dataRes = await fetch("http://157.230.188.72:8080/create_order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        order_id: id,
+        amount: numberOfItems * modelService.price,
+        buyer:email,
+        seller:sellerMail
+      }),
+    });
+    console.log(dataRes);
+    
     const order = {
+      orderId: id,
       nameOfService: modelService.nameOfService,
       price: modelService.price,
       description: modelService.description,

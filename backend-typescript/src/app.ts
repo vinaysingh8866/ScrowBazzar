@@ -82,7 +82,7 @@ app.get("/balance_of", async (req: any, res: any) => {
 });
 
 // '{"function":"CreateOrder","Args":["0001","1000","vinay","hdsp"]}'
-app.get("/create_order", async (req: any, res: any) => {
+app.post("/create_order", async (req: any, res: any) => {
     const { orderid, amount, buyer, seller } = req.query;
     try {
         const orderval = await contract.submitTransaction('CreateOrder', orderid, amount, buyer, seller);
@@ -99,7 +99,7 @@ app.get("/create_order", async (req: any, res: any) => {
 
 // '{"function":"GetOrderList","Args":["hdsp"]}'
 
-app.get("/get_order_list", async (req: any, res: any) => {
+app.post("/get_order_list", async (req: any, res: any) => {
     const { seller } = req.query;
     try {
         const orderListVal = await contract.submitTransaction('GetOrderList', seller);
@@ -115,7 +115,7 @@ app.get("/get_order_list", async (req: any, res: any) => {
 });
 
 // '{"function":"ApproveOrder","Args":["0001"]}'
-app.get("/approve_order", async (req: any, res: any) => {
+app.post("/approve_order", async (req: any, res: any) => {
     const { orderid } = req.query;
     try {
         const approveval = await contract.submitTransaction('ApproveOrder', orderid);
@@ -130,7 +130,7 @@ app.get("/approve_order", async (req: any, res: any) => {
 });
 
 // '{"function":"ProcessOrder","Args":["0001"]}'
-app.get("/process_order", async (req: any, res: any) => {
+app.post("/process_order", async (req: any, res: any) => {
     const { orderid } = req.query;
     try {
         const processval = await contract.submitTransaction('ProcessOrder', orderid);
@@ -145,7 +145,7 @@ app.get("/process_order", async (req: any, res: any) => {
 });
 
 // '{"function":"CompleteOrder","Args":["0001"]}'
-app.get("/complete_order", async (req: any, res: any) => {
+app.post("/complete_order", async (req: any, res: any) => {
     const { orderid } = req.query;
     try {
         const completeval = await contract.submitTransaction('CompleteOrder', orderid);
@@ -160,7 +160,7 @@ app.get("/complete_order", async (req: any, res: any) => {
 });
 
 // '{"function":"CompleteEscrow","Args":["0001"]}'
-app.get("/complete_escrow", async (req: any, res: any) => {
+app.post("/complete_escrow", async (req: any, res: any) => {
     const { orderid } = req.query;
     try {
         const escrowval = await contract.submitTransaction('CompleteEscrow', orderid);
