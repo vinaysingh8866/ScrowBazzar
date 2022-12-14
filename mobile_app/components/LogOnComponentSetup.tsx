@@ -194,6 +194,7 @@ const AddPersonalDetails = ({ setState, state }: any) => {
       name: name,
       email: email,
       dob: day + "/" + month + "/" + year,
+      balance: 0,
     };
     //replace the special characters in the email with a _
     user.email = user.email.replace(/[.#$[\]]/g, "_").toLocaleLowerCase();

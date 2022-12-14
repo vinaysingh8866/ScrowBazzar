@@ -14,15 +14,74 @@ import AppTitle from "../components/AppTitle";
 import AppSubtitle from "../components/AppSubtitile";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
+import { get, ref, update } from "firebase/database";
+import db from "../firebase";
 
 const WalletScreen = () => {
   const [value, setValue] = useState("");
   useEffect(() => {
-    const value = getValueFor("balance");
-    value.then((value: string) => {
-      setValue(value);
-    });
+    // const value = getValueFor("balance");
+    // value.then((value: string) => {
+    //   setValue(value);
+    // });
+    getBalance();
   }, []);
+
+  useEffect(() => {}, [value]);
+
+  async function getBalance() {
+    let email = await getValueFor("email");
+    //replace . with _ in email
+    email = email.replace(".", "_");
+    const balance = await fetch("http://157.230.188.72:8080/balance_of",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: email,
+      }),
+    })
+    const balanceValue = await balance.json();
+    console.log(balanceValue);
+    setValue(balanceValue);
+  }
+
+  async function addFunds() {
+    let email = await getValueFor("email");
+    //replace . with _ in email
+    email = email.replace(".", "_");
+    const userRef = ref(db, "users/" + email+"/info");
+    const balance = await get(userRef);
+    const balanceValue = balance.val().balance;
+
+    const mintTokens = await fetch("http://157.230.188.72:8080/mint_tokens"
+    , {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: email,
+        amount: parseInt(value),
+      }),
+
+      
+    });
+    console.log(mintTokens);
+    getBalance();
+    
+
+    if (!balanceValue) {
+      update(userRef, {
+        balance: parseInt(value),
+      });
+      return;
+    }
+    update(userRef, {
+      balance: parseInt(value) + parseInt(balanceValue),
+    });
+  }
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
@@ -36,13 +95,21 @@ const WalletScreen = () => {
           >
             Wallet
           </Text>
-          <AppTitle>₹ {value}</AppTitle>
+          <Text color="white">₹{value}</Text> 
+          <Input color="white" w="100%" mx="auto" my="2" px={4} rounded="lg" value={value} onChangeText={(text) => setValue(text)}>
+          
+          
+          </Input>
+          
           <AppSubtitle>Avialable Balance</AppSubtitle>
         </VStack>
         <VStack mx="auto" paddingTop={"10"}>
           <WithrawDipositToggle />
           <PaymentMethods />
         </VStack>
+        <TouchableOpacity onPress={addFunds}>
+          <Text>Add Funds</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </VStack>
   );

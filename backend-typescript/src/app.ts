@@ -7,7 +7,7 @@ import { Gateway, GatewayOptions } from 'fabric-network';
 import * as path from 'path';
 import { buildCCPOrg1, buildWallet, prettyJSONString } from './utils/AppUtil';
 import { buildCAClient, enrollAdmin, registerAndEnrollUser } from './utils/CAUtil';
-
+const bodyParser = require('body-parser')
 const channelName = 'mychannel';
 const chaincodeName = 'escrow';
 const mspOrg1 = 'Org1MSP';
@@ -15,6 +15,10 @@ const walletPath = path.join(__dirname, 'wallet');
 const org1UserId = 'appUser';
 const express = require("express");
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+}));
 const port = 8080; // default port to listen
 const ccp = buildCCPOrg1();
 
@@ -54,8 +58,9 @@ app.get("/init", async (req: any, res: any) => {
     }
 });
 // '{"function":"Mint","Args":["vinay","20000"]}'
-app.get("/mint_tokens", async (req: any, res: any) => {
-    const { user, amount } = req.query;
+app.post("/mint_tokens", async (req: any, res: any) => {
+    //get the user and amount from the request body
+    const { user, amount } = req.body;
     try {
         const mintval = await contract.submitTransaction('Mint', user, amount);
         res.send(prettyJSONString(mintval.toString()));
@@ -67,8 +72,8 @@ app.get("/mint_tokens", async (req: any, res: any) => {
 });
 
 // '{"function":"BalanceOf","Args":["vinay"]}'
-app.get("/balance_of", async (req: any, res: any) => {
-    const { user } = req.query;
+app.post("/balance_of", async (req: any, res: any) => {
+    const { user } = req.body;
     try {
         const balval = await contract.submitTransaction('BalanceOf', user);
         res.send(prettyJSONString(balval.toString()));
@@ -83,10 +88,10 @@ app.get("/balance_of", async (req: any, res: any) => {
 
 // '{"function":"CreateOrder","Args":["0001","1000","vinay","hdsp"]}'
 app.post("/create_order", async (req: any, res: any) => {
-    const { orderid, amount, buyer, seller } = req.query;
+    const { orderid, amount, buyer, seller } = req.body;
     try {
         const orderval = await contract.submitTransaction('CreateOrder', orderid, amount, buyer, seller);
-        
+
         res.send(prettyJSONString(orderval.toString()));
     }
     catch (err) {
@@ -100,10 +105,10 @@ app.post("/create_order", async (req: any, res: any) => {
 // '{"function":"GetOrderList","Args":["hdsp"]}'
 
 app.post("/get_order_list", async (req: any, res: any) => {
-    const { seller } = req.query;
+    const { seller } = req.body;
     try {
         const orderListVal = await contract.submitTransaction('GetOrderList', seller);
-        
+
         res.send(prettyJSONString(orderListVal.toString()));
     }
     catch (err) {
@@ -116,7 +121,7 @@ app.post("/get_order_list", async (req: any, res: any) => {
 
 // '{"function":"ApproveOrder","Args":["0001"]}'
 app.post("/approve_order", async (req: any, res: any) => {
-    const { orderid } = req.query;
+    const { orderid } = req.body;
     try {
         const approveval = await contract.submitTransaction('ApproveOrder', orderid);
         res.send(prettyJSONString(approveval.toString()));
@@ -131,7 +136,7 @@ app.post("/approve_order", async (req: any, res: any) => {
 
 // '{"function":"ProcessOrder","Args":["0001"]}'
 app.post("/process_order", async (req: any, res: any) => {
-    const { orderid } = req.query;
+    const { orderid } = req.body;
     try {
         const processval = await contract.submitTransaction('ProcessOrder', orderid);
         res.send(prettyJSONString(processval.toString()));
@@ -146,7 +151,7 @@ app.post("/process_order", async (req: any, res: any) => {
 
 // '{"function":"CompleteOrder","Args":["0001"]}'
 app.post("/complete_order", async (req: any, res: any) => {
-    const { orderid } = req.query;
+    const { orderid } = req.body;
     try {
         const completeval = await contract.submitTransaction('CompleteOrder', orderid);
         res.send(prettyJSONString(completeval.toString()));
@@ -161,7 +166,7 @@ app.post("/complete_order", async (req: any, res: any) => {
 
 // '{"function":"CompleteEscrow","Args":["0001"]}'
 app.post("/complete_escrow", async (req: any, res: any) => {
-    const { orderid } = req.query;
+    const { orderid } = req.body;
     try {
         const escrowval = await contract.submitTransaction('CompleteEscrow', orderid);
         res.send(prettyJSONString(escrowval.toString()));
