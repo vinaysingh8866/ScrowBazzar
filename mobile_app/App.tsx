@@ -38,15 +38,20 @@ import { deleteValueFor, getValueFor } from "./utils/Storage";
 import ProfileScreen from "./pages/ProfileScreen";
 const Tab = createBottomTabNavigator();
 //deleteValueFor("name");
+
 export default function App() {
-  let [fontsLoaded] = useFonts({
+  const [state, setState] = useState(0);
+
+  const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
-  const [state, setState] = useState(0);
 
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
   useEffect(() => {
     const value = getValueFor("name");
     value.then((value: string) => {
@@ -57,81 +62,96 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        {state < 6 && <LogOn state={state} setState={setState} />}
-        {state >= 6 && <MyTabs />}
+        {fontsLoaded ? (
+          <>
+            {state < 6 && <LogOn state={state} setState={setState} />}
+            {state >= 6 && <MyTabs />}
+          </>
+        ) : null}
       </NavigationContainer>
     </NativeBaseProvider>
   );
 }
 
 function MyTabs() {
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+
   return (
-    <Tab.Navigator
-      initialRouteName="Home"
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: "#639426",
-        tabBarStyle: {
-          backgroundColor: "#12202E",
-          borderTopColor: "#060D16",
-          borderTopWidth: 0,
-          height: 90,
+    <>
+      {fontsLoaded && (
+        <Tab.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: "#639426",
+            tabBarStyle: {
+              backgroundColor: "#12202E",
+              borderTopColor: "#060D16",
+              borderTopWidth: 0,
+              height: 90,
 
-          paddingTop: 10,
-          shadowColor: "#060D16",
-          shadowOffset: {
-            width: 0,
-            height: 0,
-          },
-          shadowOpacity: 0,
-          shadowRadius: 0,
-          elevation: 0,
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <ChevronUpIcon size={size} color={color} />
-          ),
-        }}
-      />
+              paddingTop: 10,
+              shadowColor: "#060D16",
+              shadowOffset: {
+                width: 0,
+                height: 0,
+              },
+              shadowOpacity: 0,
+              shadowRadius: 0,
+              elevation: 0,
+            },
+          }}
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              tabBarLabel: "Home",
+              tabBarIcon: ({ color, size }) => (
+                <ChevronUpIcon size={size} color={color} />
+              ),
+            }}
+          />
 
-      <Tab.Screen
-        name="Wallet"
-        component={WalletScreen}
-        options={{
-          tabBarLabel: "Wallet",
-          tabBarIcon: ({ color, size }) => (
-            <InfoIcon size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Orders"
-        component={OrderScreen}
-        options={{
-          tabBarLabel: "Orders",
-          tabBarIcon: ({ color, size }) => (
-            <InfoIcon size={size} color={color} />
-          ),
-        }}
-      />
+          <Tab.Screen
+            name="Wallet"
+            component={WalletScreen}
+            options={{
+              tabBarLabel: "Wallet",
+              tabBarIcon: ({ color, size }) => (
+                <InfoIcon size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Orders"
+            component={OrderScreen}
+            options={{
+              tabBarLabel: "Orders",
+              tabBarIcon: ({ color, size }) => (
+                <InfoIcon size={size} color={color} />
+              ),
+            }}
+          />
 
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <InfoIcon size={size} color={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+          <Tab.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              tabBarLabel: "Profile",
+              tabBarIcon: ({ color, size }) => (
+                <InfoIcon size={size} color={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      )}
+    </>
   );
 }
 

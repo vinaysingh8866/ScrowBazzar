@@ -36,7 +36,7 @@ const OrderScreen = () => {
       <SafeAreaView>
         {myOrders.map((order,i) => {
           return (
-            <Stack>
+            <Stack key={i}>
               {order.sellerEmail===email && <SellerOrdersScreen order={order} />}
               {order.buyerEmail===email && <BuyerOrdersScreen order={order} />}
             </Stack>
