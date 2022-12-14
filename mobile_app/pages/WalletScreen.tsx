@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { HStack, Image, Input, Stack, Text, VStack } from "native-base";
+import { Button, HStack, Image, Input, Stack, Text, VStack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getValueFor } from "../utils/Storage";
 import Animated, {
@@ -26,28 +26,20 @@ const WalletScreen = () => {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
-        <VStack p="4">
+        <VStack px="2">
           <Text
             my="2"
             color="yellow.300"
             fontSize="2xl"
             fontFamily="Poppins_700Bold"
+            p="2"
           >
             Wallet
           </Text>
-          <Text
-            mt="2"
-            color="yellow.300"
-            fontSize="2xl"
-            fontFamily="Poppins_700Bold"
-          >
-            ₹ {value}
-          </Text>
-          <Text mt="-2" color="rgba(255,255,255,0.5)">
-            Avialable Balance
-          </Text>
+          <AppTitle>₹ {value}</AppTitle>
+          <AppSubtitle>Avialable Balance</AppSubtitle>
         </VStack>
-        <VStack mx="auto">
+        <VStack mx="auto" paddingTop={"10"}>
           <WithrawDipositToggle />
           <PaymentMethods />
         </VStack>
@@ -57,124 +49,65 @@ const WalletScreen = () => {
 };
 
 const WithrawDipositToggle = () => {
-  const [toggle, setToggle] = useState(true);
+  const [toggle, setToggle] = useState(false);
   return (
-    <VStack bg="#193F60" rounded={"lg"} my="2">
-      <HStack justifyContent="space-evenly">
-        <TouchableOpacity onPress={() => setToggle(true)}>
-          <Animated.View
-            style={{
-              backgroundColor: toggle ? "#639426" : "#060D16",
-              width: 150,
-              height: 50,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-              margin: 10,
-              shadowColor: "#060D16",
-              shadowOffset: {
-                width: 0,
-                height: 0,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
-          >
-            <Text color={toggle ? "white" : "rgba(255,255,255,0.5)"}>
-              Add Funds
-            </Text>
-          </Animated.View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setToggle(false)}>
-          <Animated.View
-            style={{
-              backgroundColor: toggle ? "#060D16" : "#639426",
-              width: 150,
-              height: 50,
-              borderRadius: 10,
-              justifyContent: "center",
-              alignItems: "center",
-              margin: 10,
-              shadowColor: "#060D16",
-              shadowOffset: {
-                width: 0,
-                height: 0,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
-          >
-            <Text color={toggle ? "rgba(255,255,255,0.5)" : "white"}>
-              Withdraw Funds
-            </Text>
-          </Animated.View>
-        </TouchableOpacity>
+    <>
+      <HStack w="100%" h="40px" mx="auto" my="2" px={4} rounded="lg">
+        <Button
+          bg={toggle ? "#193F60" : "#12202E"}
+          width={"50%"}
+          onPress={() => setToggle(true)}
+        >
+          Add Funds
+        </Button>
+        <Button
+          bg={toggle ? "#12202E" : "#193F60"}
+          width={"50%"}
+          onPress={() => setToggle(false)}
+        >
+          Withdraw Funds
+        </Button>
       </HStack>
-      {toggle ? <AddFunds /> : <WithdrawFunds />}
-    </VStack>
+      <VStack bg="#12202E" rounded={"lg"} mx="4" my="4">
+        <HStack justifyContent="space-evenly"></HStack>
+        {toggle ? <AddFunds /> : <WithdrawFunds />}
+      </VStack>
+    </>
   );
 };
 
 const AddFunds = () => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState("0");
   let amounts = ["100", "500", "1000", "5000", "10000"];
   return (
     <VStack bg="rgba(0,0,0,0)">
       <VStack p="4">
-        <Text
-          my="2"
-          color="yellow.300"
-          fontSize="2xl"
-          fontFamily="Poppins_700Bold"
-        >
-          Add Funds
-        </Text>
         <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
             placeholder="Enter Amount"
             value={value}
             width="75%"
           ></AppInput>
-          <AppButton onPress={() => setValue("0")} width="20%">
+          <AppButton onPress={() => setValue("0")} width="20%" secondary={true}>
             Clear
           </AppButton>
         </HStack>
-        <HStack>
+        <HStack w="100%" h="25px" mx="auto" my="1">
           {amounts.map((amount, i) => (
-            <TouchableOpacity
+            <Button
               key={i}
               onPress={() =>
                 setValue((parseFloat(value) + parseFloat(amount)).toString())
               }
+              variant="outline"
+              rounded="full"
+              mx=".5"
+              py="0"
+              borderColor="#8EF140"
+              _text={{ color: "#8EF140", fontSize: "12px" }}
             >
-              <Animated.View
-                style={{
-                  backgroundColor: value === amount ? "#639426" : "#060D16",
-                  height: 25,
-                  borderRadius: 10,
-                  paddingHorizontal: 4,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  margin: 5,
-                  shadowColor: "#060D16",
-                  shadowOffset: {
-                    width: 0,
-                    height: 0,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  elevation: 5,
-                }}
-              >
-                <Text
-                  color={value === amount ? "white" : "rgba(255,255,255,0.5)"}
-                >
-                  ₹ {amount}
-                </Text>
-              </Animated.View>
-            </TouchableOpacity>
+              {"+ " + amount}
+            </Button>
           ))}
         </HStack>
       </VStack>
@@ -194,14 +127,7 @@ const WithdrawFunds = () => {
   return (
     <VStack bg="rgba(0,0,0,0)">
       <VStack p="4">
-        <Text
-          my="2"
-          color="yellow.300"
-          fontSize="2xl"
-          fontFamily="Poppins_400Regular"
-        >
-          Withdraw ₹{value}
-        </Text>
+        <AppTitle>₹{value}</AppTitle>
       </VStack>
     </VStack>
   );
@@ -209,37 +135,34 @@ const WithdrawFunds = () => {
 
 const PaymentMethods = () => {
   return (
-    <VStack bg="rgba(0,0,0,0)">
+    <VStack bg="rgba(0,0,0,0)" p="4">
       <VStack mt="4">
-        <Text color="blue.300" fontSize="md" fontFamily="Poppins_400Regular">
-          Select Payment Methods
-        </Text>
-
-        <VStack space="3">
-          <HStack>
+        <AppSubtitle>Select Payment Methods</AppSubtitle>
+        <VStack space="5" mt="4">
+          <HStack space="5">
             <Image
               alt="upi"
               source={require("../assets/upi.webp")}
-              w="10"
-              h="10"
+              w="8"
+              h="8"
             />
             <Text color="white" fontSize="md" fontFamily="Poppins_400Regular">
               UPI
             </Text>
           </HStack>
-          <HStack>
+          <HStack space="5">
             <Image
               alt="upi"
               source={require("../assets/upi.webp")}
-              w="10"
-              h="10"
+              w="8"
+              h="8"
             />
             <Text color="white" fontSize="md" fontFamily="Poppins_400Regular">
               UPI Apps
             </Text>
           </HStack>
-          <HStack>
-            <Stack pl="2" w="10" h="10">
+          <HStack space="5">
+            <Stack pl="1" w="8" h="8">
               <FontAwesome
                 name="bank"
                 size={24}
@@ -250,12 +173,12 @@ const PaymentMethods = () => {
               NEFT/RTGS
             </Text>
           </HStack>
-          <HStack>
+          <HStack space="5">
             <Image
               alt="e-rupee"
               source={require("../assets/er.png")}
-              width="5"
-              height="5"
+              width="8"
+              height="6"
             />
 
             <Text color="white" fontSize="md" fontFamily="Poppins_400Regular">

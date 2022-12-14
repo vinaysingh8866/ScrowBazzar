@@ -4,15 +4,17 @@ function AppButton({
   width = "100%",
   children,
   onPress,
+  secondary = false,
 }: {
   width: string;
   children: any;
   onPress: any;
+  secondary: boolean;
 }) {
   return (
     <Button
       onPress={onPress}
-      bg="#4030FB"
+      bg={secondary ? "#1D3647" : "#4030FB"}
       w={width}
       h="50px"
       mx="auto"
