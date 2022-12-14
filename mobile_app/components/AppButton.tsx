@@ -1,7 +1,7 @@
 import { Button } from "native-base";
 
 function AppButton({
-  width,
+  width = "100%",
   children,
   onPress,
 }: {

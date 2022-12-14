@@ -9,6 +9,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { FontAwesome } from "@expo/vector-icons";
 import { TouchableHighlight, TouchableOpacity } from "react-native";
+
+import AppTitle from "../components/AppTitle";
+import AppSubtitle from "../components/AppSubtitile";
+import AppInput from "../components/AppInput";
+import AppButton from "../components/AppButton";
+
 const WalletScreen = () => {
   const [value, setValue] = useState("");
   useEffect(() => {
@@ -53,7 +59,7 @@ const WalletScreen = () => {
 const WithrawDipositToggle = () => {
   const [toggle, setToggle] = useState(true);
   return (
-    <VStack bg="#193F60" rounded={"2xl"} my="2">
+    <VStack bg="#193F60" rounded={"lg"} my="2">
       <HStack justifyContent="space-evenly">
         <TouchableOpacity onPress={() => setToggle(true)}>
           <Animated.View
@@ -125,10 +131,24 @@ const AddFunds = () => {
         >
           Add Funds
         </Text>
-        <Input placeholder="Enter Amount" value={value} />
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            placeholder="Enter Amount"
+            value={value}
+            width="75%"
+          ></AppInput>
+          <AppButton onPress={() => setValue("0")} width="20%">
+            Clear
+          </AppButton>
+        </HStack>
         <HStack>
-          {amounts.map((amount,i) => (
-            <TouchableOpacity key={i} onPress={() => setValue(amount)}>
+          {amounts.map((amount, i) => (
+            <TouchableOpacity
+              key={i}
+              onPress={() =>
+                setValue((parseFloat(value) + parseFloat(amount)).toString())
+              }
+            >
               <Animated.View
                 style={{
                   backgroundColor: value === amount ? "#639426" : "#060D16",

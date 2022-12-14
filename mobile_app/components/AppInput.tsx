@@ -1,7 +1,7 @@
 import { Input } from "native-base";
 
 function AppInput({
-  width,
+  width = "100%",
   placeholder,
   value,
   onChangeText,

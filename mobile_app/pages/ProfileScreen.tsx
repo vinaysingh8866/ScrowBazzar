@@ -19,6 +19,10 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { push, ref as dbRef, set } from "firebase/database";
+import AppInput from "../components/AppInput";
+import AppButton from "../components/AppButton";
+import AppTitle from "../components/AppTitle";
+import AppSubtitle from "../components/AppSubtitile";
 const ProfileScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -70,13 +74,14 @@ const ProfileScreen = () => {
   }
 
   async function uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
-      c
-    ) {
-      var r = (Math.random() * 16) | 0,
-        v = c == "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
   }
 
   async function selectImageFromGallery() {
@@ -99,7 +104,7 @@ const ProfileScreen = () => {
         const blob = await response.blob();
         const storage = getStorage(app);
         const id = await uuidv4();
-        const storageRef = ref(storage, "images/" + email + "/services/"+id);
+        const storageRef = ref(storage, "images/" + email + "/services/" + id);
         const uploadTask = uploadBytesResumable(storageRef, blob);
         uploadTask.on(
           "state_changed",
@@ -136,25 +141,12 @@ const ProfileScreen = () => {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
-        <VStack px="4">
-          <HStack>
-            <Text
-              color="yellow.300"
-              fontSize="2xl"
-              fontFamily="Poppins_700Bold"
-              my="2"
-            >
-              {name}
-            </Text>
-          </HStack>
-          <Stack>
-            <Text color="rgba(255,255,255,0.5)" fontSize="sm">
-              {email}
-            </Text>
-          </Stack>
-          <VStack p="5" space="3" mx="auto" w="100%" my="0">
+        <VStack px="2">
+          <AppTitle>{name}</AppTitle>
+          <AppSubtitle>{email}</AppSubtitle>
+          <VStack px="4" paddingTop={"10"} mx="auto" w="100%">
             <TouchableOpacity onPress={selectImageFromGallery}>
-              <Stack w="100%" h="56" bg="#12202E" rounded={"2xl"}>
+              <Stack w="100%" h="250px" bg="#19334E" rounded={"lg"} my="2">
                 <Stack mx="auto" my="auto">
                   <Stack mx="auto">
                     {image !== "" ? (
@@ -166,38 +158,41 @@ const ProfileScreen = () => {
                         rounded="md"
                       />
                     ) : (
-                      <FontAwesome name="image" size={50} color="white" />
+                      <FontAwesome name="image" size={30} color="#D9F1FF" />
                     )}
                   </Stack>
 
                   {image === "" ? (
-                    <Text color="white" fontSize="lg">
-                      Tap here to add Image
-                    </Text>
+                    <AppSubtitle>Tap here to add Image</AppSubtitle>
                   ) : null}
                 </Stack>
               </Stack>
             </TouchableOpacity>
 
-            <Input
-              placeholder="Serivice Name"
-              value={nameOfService}
-              onChangeText={setNameOfService}
-            />
-            <Input
-              h="32"
-              placeholder="Description"
-              value={description}
-              onChangeText={setDescription}
-            />
-            <Input placeholder="Price" value={price} onChangeText={setPrice} />
-            <TouchableOpacity onPress={addServiceToDataBase}>
-              <HStack mx="auto" w="200" h="10" bg="#4030FB" rounded="2xl">
-                <Text color="white" fontSize="lg" mx="auto" my="auto">
-                  Add Services
-                </Text>
-              </HStack>
-            </TouchableOpacity>
+            <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+              <AppInput
+                placeholder="Serivice Name"
+                value={nameOfService}
+                onChangeText={setNameOfService}
+              ></AppInput>
+            </HStack>
+            <HStack w="100%" h="130px" mx="auto" my="2">
+              <AppInput
+                placeholder="Description"
+                value={description}
+                onChangeText={setDescription}
+              ></AppInput>
+            </HStack>
+            <HStack w="100%" h="50px" mx="auto" my="2">
+              <AppInput
+                placeholder="Price"
+                value={price}
+                onChangeText={setPrice}
+              ></AppInput>
+            </HStack>
+            <HStack w="100%" h="50px" mx="auto" my="2">
+              <AppButton onPress={addServiceToDataBase}>Add Service</AppButton>
+            </HStack>
           </VStack>
         </VStack>
       </SafeAreaView>

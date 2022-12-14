@@ -7,7 +7,7 @@ function AppSubtitle({ children }: { children: string }) {
       fontFamily={"Poppins_400Regular"}
       mx="2"
       fontSize={"15"}
-      my="4"
+      my="1"
     >
       {children}
     </Text>
