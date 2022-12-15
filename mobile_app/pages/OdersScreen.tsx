@@ -254,6 +254,16 @@ const BuyerOrdersScreen = ({ order }: any) => {
         });
       }
     }
+
+    //increase seller balance
+    const sellerRef = ref(db, "users/" + sellerEmail +"/info");
+    const seller = await get(sellerRef);
+    const sellerData = seller.val();
+    const sellerBalance = sellerData.balance;
+    const newSellerBalance = sellerBalance + order.price;
+    update(ref(db, "users/" + sellerEmail + "/info"), {
+      balance: newSellerBalance,
+    });
   }
   return (
     <VStack>

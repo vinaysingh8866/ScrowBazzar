@@ -157,7 +157,7 @@ function MyTabs() {
 }
 
 import db from "./firebase";
-import { get, onValue, push, ref } from "firebase/database";
+import { get, onValue, push, ref, update } from "firebase/database";
 import { FontAwesome } from "@expo/vector-icons";
 import OrderPage from "./pages/OdersScreen";
 import OrderScreen from "./pages/OdersScreen";
@@ -276,12 +276,12 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
       body: JSON.stringify({
         orderid: id,
         amount: numberOfItems * modelService.price,
-        buyer:email,
-        seller:sellerMail
+        buyer: email,
+        seller: sellerMail,
       }),
     });
     console.log(dataRes);
-    
+
     const order = {
       orderId: id,
       nameOfService: modelService.nameOfService,
@@ -297,7 +297,13 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
     await push(userRef, order);
     await push(sellerRef, order);
 
-
+    // reduce the balance of buyer
+    const buyerRef = ref(db, "users/" + email + "/info");
+    const buyerInfo = await get(buyerRef);
+    const buyerBalance = buyerInfo.val().balance;
+    await update(buyerRef, {
+      balance: buyerBalance - numberOfItems * modelService.price,
+    });
   }
   return (
     <Modal
