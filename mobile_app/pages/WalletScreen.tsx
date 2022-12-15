@@ -78,6 +78,7 @@ const WalletScreen = () => {
   }
 
   async function addFunds() {
+    setValue(0);
     let email = await getValueFor("email");
     //replace . with _ in email
     email = email.replace(".", "_");
