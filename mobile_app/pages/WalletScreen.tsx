@@ -33,7 +33,8 @@ const WalletScreen = () => {
     let email = await getValueFor("email");
     //replace . with _ in email
     email = email.replace(".", "_");
-    const balance = await fetch("http://157.230.188.72:8080/balance_of",{
+    console.log(email);
+    const balance = await fetch("http://157.230.188.72:8080/balance_of", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -41,22 +42,25 @@ const WalletScreen = () => {
       body: JSON.stringify({
         user: email,
       }),
-    })
-    const balanceValue = await balance.json();
-    console.log(balanceValue);
-    setValue(balanceValue);
+    });
+    if (balance.status === 200) {
+      console.log(balance);
+      const balanceValue = await balance.json();
+      console.log(balanceValue);
+
+      setValue(balanceValue);
+    }
   }
 
   async function addFunds() {
     let email = await getValueFor("email");
     //replace . with _ in email
     email = email.replace(".", "_");
-    const userRef = ref(db, "users/" + email+"/info");
+    const userRef = ref(db, "users/" + email + "/info");
     const balance = await get(userRef);
     const balanceValue = balance.val().balance;
 
-    const mintTokens = await fetch("http://157.230.188.72:8080/mint_tokens"
-    , {
+    const mintTokens = await fetch("http://157.230.188.72:8080/mint_tokens", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,12 +69,9 @@ const WalletScreen = () => {
         user: email,
         amount: parseInt(value),
       }),
-
-      
     });
     console.log(mintTokens);
     getBalance();
-    
 
     if (!balanceValue) {
       update(userRef, {
@@ -95,12 +96,18 @@ const WalletScreen = () => {
           >
             Wallet
           </Text>
-          <Text color="white">₹{value}</Text> 
-          <Input color="white" w="100%" mx="auto" my="2" px={4} rounded="lg" value={value} onChangeText={(text) => setValue(text)}>
-          
-          
-          </Input>
-          
+          <Text color="white">₹{value}</Text>
+          <Input
+            color="white"
+            w="100%"
+            mx="auto"
+            my="2"
+            px={4}
+            rounded="lg"
+            value={value}
+            onChangeText={(text) => setValue(text)}
+          ></Input>
+
           <AppSubtitle>Avialable Balance</AppSubtitle>
         </VStack>
         <VStack mx="auto" paddingTop={"10"}>

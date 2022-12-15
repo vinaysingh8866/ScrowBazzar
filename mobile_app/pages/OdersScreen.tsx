@@ -68,6 +68,46 @@ const SellerOrdersScreen = ({ order }: any) => {
   ];
 
   async function updateOrderStatus(orderId: string, status: string) {
+    if (status === "Pending") {
+      const approve = await fetch("http://157.230.188.72:8080/approve_order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderid: orderId,
+        }),
+      });
+      console.log(approve);
+    }
+    if (status === "Approved") {
+      const process = await fetch("http://157.230.188.72:8080/process_order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderid: orderId,
+        }),
+      });
+      console.log(process);
+    }
+    if (status === "Processing") {
+      const complete = await fetch(
+        "http://157.230.188.72:8080/complete_order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderid: orderId,
+          }),
+        }
+      );
+      console.log(complete);
+    }
+
     const buyerEmail = order.buyerEmail.replace(".", "_");
     const buyerOrdersRef = ref(db, "users/" + buyerEmail + "/orders");
     const buyerOrders = await get(buyerOrdersRef);
@@ -182,8 +222,16 @@ const CircleComponent = ({ status, state }: any) => {
 };
 
 const BuyerOrdersScreen = ({ order }: any) => {
-
   async function updateOrderStatus(orderId: string, status: string) {
+    const process = await fetch("http://157.230.188.72:8080/complete_escrow", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderid: orderId,
+      }),
+    });
     const buyerEmail = order.buyerEmail.replace(".", "_");
     const buyerOrdersRef = ref(db, "users/" + buyerEmail + "/orders");
     const buyerOrders = await get(buyerOrdersRef);

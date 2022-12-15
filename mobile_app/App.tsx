@@ -21,7 +21,7 @@ import {
   Stack,
 } from "native-base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
+import { LogBox } from "react-native";
 import LogOn from "./pages/LogOn";
 import { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
@@ -38,6 +38,7 @@ import { deleteValueFor, getValueFor } from "./utils/Storage";
 import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
 const Tab = createBottomTabNavigator();
 //deleteValueFor("name");
+LogBox.ignoreAllLogs();
 
 export default function App() {
   const [state, setState] = useState(0);
@@ -273,7 +274,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        order_id: id,
+        orderid: id,
         amount: numberOfItems * modelService.price,
         buyer:email,
         seller:sellerMail
@@ -295,6 +296,8 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
     };
     await push(userRef, order);
     await push(sellerRef, order);
+
+
   }
   return (
     <Modal
