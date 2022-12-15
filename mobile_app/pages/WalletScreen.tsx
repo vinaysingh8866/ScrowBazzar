@@ -14,7 +14,7 @@ import AppTitle from "../components/AppTitle";
 import AppSubtitle from "../components/AppSubtitile";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
-import { get, ref, update } from "firebase/database";
+import { get, onValue, ref, update } from "firebase/database";
 import db from "../firebase";
 
 const WalletScreen = () => {
@@ -28,7 +28,9 @@ const WalletScreen = () => {
     getBalance();
   }, []);
 
-  useEffect(() => {}, [value]);
+  useEffect(() => {
+    
+  }, [value]);
 
   async function getBalance() {
     let email = await getValueFor("email");
@@ -36,6 +38,19 @@ const WalletScreen = () => {
     email = email.replace(".", "_");
     console.log(email);
     const userRef = ref(db, "users/" + email + "/info");
+    onValue(
+      userRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+        if (data) {
+          setBalance(data.balance);
+        }
+      },
+      {
+        onlyOnce: false,
+      }
+    );
     const b = await get(userRef);
     const balanceValue = b.val().balance;
     console.log(balanceValue);
