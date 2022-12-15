@@ -206,18 +206,58 @@ const AddFunds = ({ value, setValue }: any) => {
 };
 
 const WithdrawFunds = () => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState("0");
   useEffect(() => {
+    setToBalance(setValue);
+  }, []);
+  const setToBalance = (setValue: any) => {
     const value = getValueFor("balance");
     value.then((value: string) => {
       setValue(value);
     });
-  }, []);
-
+  };
+  let amounts = ["100", "500", "1000", "5000", "10000"];
   return (
     <VStack bg="rgba(0,0,0,0)">
       <VStack p="4">
-        <AppTitle>₹{value}</AppTitle>
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+          <AppInput
+            placeholder="Enter Amount"
+            value={value}
+            onChangeText={(text) => setValue(text)}
+            width="75%"
+          ></AppInput>
+          <AppButton
+            onPress={() => setToBalance(setValue)}
+            width="20%"
+            secondary={true}
+          >
+            Reset
+          </AppButton>
+        </HStack>
+        <HStack w="100%" h="25px" mx="auto" my="1">
+          {amounts.map((amount, i) => (
+            <Button
+              key={i}
+              onPress={() =>
+                setValue(
+                  (parseFloat(value) - parseFloat(amount) < 0
+                    ? 0
+                    : parseFloat(value) - parseFloat(amount)
+                  ).toString()
+                )
+              }
+              variant="outline"
+              rounded="full"
+              mx=".5"
+              py="0"
+              borderColor="#8EF140"
+              _text={{ color: "#8EF140", fontSize: "12px" }}
+            >
+              {"- " + amount}
+            </Button>
+          ))}
+        </HStack>
       </VStack>
     </VStack>
   );
