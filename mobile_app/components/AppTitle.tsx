@@ -1,6 +1,6 @@
 import { Text } from "native-base";
 
-function AppTitle({ children }: { children: string }) {
+function AppTitle({ children }: { children: any }) {
   return (
     <Text
       color="#E4FF41"

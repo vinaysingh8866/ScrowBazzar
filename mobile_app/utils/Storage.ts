@@ -10,7 +10,6 @@ async function getValueFor(key: string): Promise<string> {
     return result;
   } else {
     return "0";
-    alert("No values stored under that key.");
   }
 }
 

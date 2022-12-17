@@ -1,13 +1,14 @@
 import { Input } from "native-base";
+import { useEffect } from "react";
 
 function AppInput({
   width = "100%",
-  placeholder,
-  value,
-  onChangeText,
-  maxLength,
-  keyboardType,
-  isFocused,
+  placeholder = "",
+  value = "",
+  onChangeText = () => {},
+  maxLength = 1000,
+  keyboardType = "default",
+  isFocused = false,
 }: {
   width: string;
   placeholder: string;
@@ -17,6 +18,14 @@ function AppInput({
   onChangeText: any;
   isFocused: any;
 }) {
+  useEffect(() => {}, [
+    value,
+    onChangeText,
+    maxLength,
+    keyboardType,
+    isFocused,
+  ]);
+
   return (
     <Input
       bg="#19334E"
@@ -30,7 +39,7 @@ function AppInput({
       color="#D9F1FF"
       borderWidth={0}
       value={value}
-      onChangeText={onChangeText}
+      onChangeText={(text) => onChangeText(text)}
       maxLength={maxLength}
       keyboardType={keyboardType}
       isFocused={isFocused}

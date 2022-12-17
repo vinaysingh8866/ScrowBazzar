@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { NativeBaseProvider, Box, VStack, HStack, Stack, Button } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
-import LogOnComponentSetup from "../components/LogOnComponentSetup";
+import LogOnComponentSetup from "../components/LogOn/LogOnComponentSetup";
 import LogOnProgress from "../components/LogOnProgress";
 import { useState } from "react";
 

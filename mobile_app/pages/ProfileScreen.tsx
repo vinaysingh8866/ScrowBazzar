@@ -73,8 +73,6 @@ const ProfileScreen = () => {
     }
   }
 
- 
-
   async function selectImageFromGallery() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -133,11 +131,13 @@ const ProfileScreen = () => {
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
         <VStack px="2">
-          <AppTitle>{name}</AppTitle>
-          <AppSubtitle>{email}</AppSubtitle>
+          <Stack px="2">
+            <AppTitle>{name}</AppTitle>
+            <AppSubtitle>{email}</AppSubtitle>
+          </Stack>
           <VStack px="4" paddingTop={"10"} mx="auto" w="100%">
             <TouchableOpacity onPress={selectImageFromGallery}>
-              <Stack w="100%" h="250px" bg="#19334E" rounded={"lg"} my="2">
+              <Stack w="100%" h="250px" bg="#19334E" rounded={"lg"}>
                 <Stack mx="auto" my="auto">
                   <Stack mx="auto">
                     {image !== "" ? (
@@ -165,6 +165,10 @@ const ProfileScreen = () => {
                 placeholder="Serivice Name"
                 value={nameOfService}
                 onChangeText={setNameOfService}
+                width={"100%"}
+                maxLength={1000}
+                keyboardType={"default"}
+                isFocused={false}
               ></AppInput>
             </HStack>
             <HStack w="100%" h="130px" mx="auto" my="2">
@@ -172,6 +176,10 @@ const ProfileScreen = () => {
                 placeholder="Description"
                 value={description}
                 onChangeText={setDescription}
+                width={"100%"}
+                maxLength={1000}
+                keyboardType={"default"}
+                isFocused={false}
               ></AppInput>
             </HStack>
             <HStack w="100%" h="50px" mx="auto" my="2">
@@ -179,10 +187,20 @@ const ProfileScreen = () => {
                 placeholder="Price"
                 value={price}
                 onChangeText={setPrice}
+                width={"100%"}
+                maxLength={100}
+                keyboardType={"default"}
+                isFocused={false}
               ></AppInput>
             </HStack>
             <HStack w="100%" h="50px" mx="auto" my="2">
-              <AppButton onPress={addServiceToDataBase}>Add Service</AppButton>
+              <AppButton
+                onPress={addServiceToDataBase}
+                width={"100%"}
+                secondary={false}
+              >
+                Add Service
+              </AppButton>
             </HStack>
           </VStack>
         </VStack>
@@ -193,12 +211,9 @@ const ProfileScreen = () => {
 
 export default ProfileScreen;
 export async function uuidv4() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-    /[xy]/g,
-    function (c) {
-      var r = (Math.random() * 16) | 0,
-        v = c == "x" ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    }
-  );
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }

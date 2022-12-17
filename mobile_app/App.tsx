@@ -1,23 +1,15 @@
 import { StatusBar } from "expo-status-bar";
 import {
-  StyleSheet,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from "react-native";
 import {
   NativeBaseProvider,
-  Box,
   VStack,
-  ChevronUpIcon,
-  InfoIcon,
   Text,
   ScrollView,
   HStack,
   Image,
-  extendTheme,
   Modal,
-  Button,
   Stack,
 } from "native-base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -32,6 +24,8 @@ import {
   Poppins_600SemiBold,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import WalletScreen from "./pages/WalletScreen";
 import { deleteValueFor, getValueFor } from "./utils/Storage";
@@ -114,7 +108,7 @@ function MyTabs() {
             options={{
               tabBarLabel: "Home",
               tabBarIcon: ({ color, size }) => (
-                <ChevronUpIcon size={size} color={color} />
+                <Ionicons name="home" size={size} color={color} />
               ),
             }}
           />
@@ -125,7 +119,7 @@ function MyTabs() {
             options={{
               tabBarLabel: "Wallet",
               tabBarIcon: ({ color, size }) => (
-                <InfoIcon size={size} color={color} />
+                <Ionicons name="wallet" size={size} color={color} />
               ),
             }}
           />
@@ -135,7 +129,7 @@ function MyTabs() {
             options={{
               tabBarLabel: "Orders",
               tabBarIcon: ({ color, size }) => (
-                <InfoIcon size={size} color={color} />
+                <Ionicons name="list" size={size} color={color} />
               ),
             }}
           />
@@ -146,7 +140,7 @@ function MyTabs() {
             options={{
               tabBarLabel: "Profile",
               tabBarIcon: ({ color, size }) => (
-                <InfoIcon size={size} color={color} />
+                <Ionicons name="person" size={size} color={color} />
               ),
             }}
           />
@@ -159,12 +153,13 @@ function MyTabs() {
 import db from "./firebase";
 import { get, onValue, push, ref, update } from "firebase/database";
 import { FontAwesome } from "@expo/vector-icons";
-import OrderPage from "./pages/OdersScreen";
 import OrderScreen from "./pages/OdersScreen";
+import AppInput from "./components/AppInput";
 function HomeScreen() {
   const [services, setServices] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalService, setModalService] = useState<any>({});
+  const [searchValue, setSearchValue] = useState("");
   async function getMarketServices() {
     const services = ref(db, "marketServices/");
 
@@ -192,59 +187,74 @@ function HomeScreen() {
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
         <Text
-          color={modalVisible ? "white" : "transparent"}
-          mx="auto"
+          color={modalVisible ? "transparent" : "white"}
+          mx="6"
           fontFamily={"Poppins_700Bold"}
           fontSize={"xl"}
         >
           Avialable Services
         </Text>
+        <Stack h="10" m="6">
+          <AppInput
+            placeholder="Search"
+            value={searchValue}
+            onChangeText={setSearchValue} width={"100%"} keyboardType={"default"} maxLength={100} isFocused={false}          />
+        </Stack>
         <ScrollView>
           <VStack mx="auto" w="100%" h="100%" space="5" my="10">
             {services.map((service, i) => {
-              return (
-                <VStack bg="#12202E" mx="5%" key={i} w="90%" h="48">
-                  <HStack my="auto" ml="4">
-                    <Image
-                      src={service.image}
-                      alt="image"
-                      h="40"
-                      w="40"
-                      rounded={"md"}
-                    />
-                    <VStack mx="auto">
-                      <Text color="white" mx="auto">
-                        {service.nameOfService}
-                      </Text>
-                      <Text color="white" mx="auto">
-                        {service.price}
-                      </Text>
-                      <Text color="white" mx="auto">
-                        {service.description}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setModalVisible(true);
-                          setModalService(service);
-                        }}
-                      >
-                        <VStack
-                          mx="auto"
-                          mt="4"
-                          w="100"
-                          bgColor={"#060D16"}
-                          rounded={"lg"}
-                          h="10"
+              if (service.nameOfService.includes(searchValue)) {
+                return (
+                  <VStack
+                    bg="#12202E"
+                    mx="5%"
+                    key={i}
+                    w="90%"
+                    h="48"
+                    rounded="md"
+                  >
+                    <HStack my="auto" ml="4">
+                      <Image
+                        src={service.image}
+                        alt="image"
+                        h="40"
+                        w="40"
+                        rounded={"md"}
+                      />
+                      <VStack mx="auto">
+                        <Text color="white" mx="auto">
+                          {service.nameOfService}
+                        </Text>
+                        <Text color="white" mx="auto">
+                          {service.price}
+                        </Text>
+                        <Text color="white" mx="auto">
+                          {service.description}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setModalVisible(true);
+                            setModalService(service);
+                          }}
                         >
-                          <Text mx="auto" my="auto" color="white">
-                            Order
-                          </Text>
-                        </VStack>
-                      </TouchableOpacity>
-                    </VStack>
-                  </HStack>
-                </VStack>
-              );
+                          <VStack
+                            mx="auto"
+                            mt="4"
+                            w="100"
+                            bgColor={"#060D16"}
+                            rounded={"lg"}
+                            h="10"
+                          >
+                            <Text mx="auto" my="auto" color="white">
+                              Order
+                            </Text>
+                          </VStack>
+                        </TouchableOpacity>
+                      </VStack>
+                    </HStack>
+                  </VStack>
+                );
+              }
             })}
           </VStack>
         </ScrollView>

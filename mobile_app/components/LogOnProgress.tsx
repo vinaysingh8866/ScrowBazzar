@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import { NativeBaseProvider, Box, VStack, HStack, Stack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
-import LogOnComponentSetup from "../components/LogOnComponentSetup";
+import LogOnComponentSetup from "./LogOn/LogOnComponentSetup";
 import { useEffect } from "react";
 
 const LogOnProgress = ({ state }: any) => {

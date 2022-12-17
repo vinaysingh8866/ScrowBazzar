@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { VStack, HStack, Text, Stack, ZStack, ScrollView } from "native-base";
+import {
+  VStack,
+  HStack,
+  Text,
+  Stack,
+  ZStack,
+  ScrollView,
+  Image,
+} from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import db from "../firebase";
 import { get, onValue, ref, update } from "firebase/database";
@@ -37,6 +45,9 @@ const OrderScreen = () => {
     <VStack bg="#09151E" w="100%" h="100%">
       <SafeAreaView>
         <ScrollView>
+          <Text color="white" fontSize="2xl" fontWeight="bold" m="5">
+            My Orders
+          </Text>
           {myOrders.map((order, i) => {
             return (
               <Stack key={i}>
@@ -66,6 +77,7 @@ const SellerOrdersScreen = ({ order }: any) => {
     "Completed",
     "EscrowCompleted",
   ];
+  const [showDetails, setShowDetails] = useState(false);
 
   async function updateOrderStatus(orderId: string, status: string) {
     if (status === "Pending") {
@@ -132,50 +144,71 @@ const SellerOrdersScreen = ({ order }: any) => {
     }
   }
   return (
-    <VStack>
-      <VStack mx="4">
-        {states.map((s: any, i: any) => {
-          return (
-            <Stack key={i}>
-              <HStack>
-                {states.indexOf(status) >= states.indexOf(s) ? (
-                  <CircleComponent state={false} />
-                ) : (
-                  <CircleComponent state={true} />
-                )}
+    <VStack mx="4" mt="4" bg="#12202E" rounded={"md"}>
+      <HStack justifyContent={"space-between"} mx="4">
+        <Image source={{ uri: order.image }} alt="image" size="xl" />
+        <VStack space="2" my="2">
+          <OrderDetailsTextComponent name="Name" value={order.nameOfService} />
+          <OrderDetailsTextComponent name="Price" value={order.price} />
+          <OrderDetailsTextComponent name="Qty" value={order.numberOfItems} />
+          <OrderDetailsTextComponent name="Total" value={order.total} />
+        </VStack>
+      </HStack>
+      <Stack ml="2/3" w="24" rounded="md">
+        <TouchableOpacity onPress={() => setShowDetails(!showDetails)}>
+          <Text fontFamily={"Poppins_400Regular"} color="gray.400" mx="auto">
+            {showDetails ? "Hide Details" : "Show Details"}
+          </Text>
+        </TouchableOpacity>
+      </Stack>
 
-                <Text mx="10" color="white">
-                  {s}
-                </Text>
-                {status === s && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (s === "Pending") {
-                        updateOrderStatus(order.orderId, "Approved");
-                      }
-                      if (s === "Approved") {
-                        updateOrderStatus(order.orderId, "Processing");
-                      }
-                      if (s === "Processing") {
-                        updateOrderStatus(order.orderId, "Completed");
-                      }
-                    }}
-                  >
-                    <Text color="white">
-                      {s === "Pending" && "Approve"}
-                      {s === "Approved" && "Start Processing"}
-                      {s === "Processing" && "Complete"}
-                    </Text>
-                  </TouchableOpacity>
+      {showDetails && (
+        <Stack my="2">
+          {states.map((s: any, i: any) => {
+            return (
+              <Stack key={i} mx="4">
+                <HStack>
+                  {states.indexOf(status) >= states.indexOf(s) ? (
+                    <CircleComponent state={false} />
+                  ) : (
+                    <CircleComponent state={true} />
+                  )}
+
+                  <Text mx="10" color="white">
+                    {s}
+                  </Text>
+                  {status === s && (
+                    <Stack>
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (s === "Pending") {
+                            updateOrderStatus(order.orderId, "Approved");
+                          }
+                          if (s === "Approved") {
+                            updateOrderStatus(order.orderId, "Processing");
+                          }
+                          if (s === "Processing") {
+                            updateOrderStatus(order.orderId, "Completed");
+                          }
+                        }}
+                      >
+                        <Text color="white">
+                          {s === "Pending" && "Approve"}
+                          {s === "Approved" && "Start Processing"}
+                          {s === "Processing" && "Complete"}
+                        </Text>
+                      </TouchableOpacity>
+                    </Stack>
+                  )}
+                </HStack>
+                {i !== states.length - 1 && (
+                  <LineComponent status={status} state={s} />
                 )}
-              </HStack>
-              {i !== states.length - 1 && (
-                <LineComponent status={status} state={s} />
-              )}
-            </Stack>
-          );
-        })}
-      </VStack>
+              </Stack>
+            );
+          })}
+        </Stack>
+      )}
     </VStack>
   );
 };
@@ -256,7 +289,7 @@ const BuyerOrdersScreen = ({ order }: any) => {
     }
 
     //increase seller balance
-    const sellerRef = ref(db, "users/" + sellerEmail +"/info");
+    const sellerRef = ref(db, "users/" + sellerEmail + "/info");
     const seller = await get(sellerRef);
     const sellerData = seller.val();
     const sellerBalance = parseInt(sellerData.balance);
@@ -266,19 +299,39 @@ const BuyerOrdersScreen = ({ order }: any) => {
     });
   }
   return (
-    <VStack>
-      <Text color="white">{order.nameOfService}</Text>
-      <Text color="white">{order.price}</Text>
-      <Text color="white">{order.status}</Text>
-      {order.status === "Completed" && (
-        <TouchableOpacity
-          onPress={() => {
-            updateOrderStatus(order.orderId, "EscrowCompleted");
-          }}
-        >
-          <Text color="white">Complete Escrow</Text>
-        </TouchableOpacity>
-      )}
+    <VStack bg="#12202E" my="3" mx="2" p="4" rounded={"md"}>
+      <HStack justifyContent={"space-between"}>
+        <Image source={{ uri: order.image }} size={"xl"} />
+        <VStack>
+          <OrderDetailsTextComponent name="Name" value={order.nameOfService} />
+          <OrderDetailsTextComponent name="Price" value={order.price} />
+          <OrderDetailsTextComponent name="Qty" value={order.numberOfItems} />
+          <OrderDetailsTextComponent name="Total" value={order.total} />
+          <OrderDetailsTextComponent name="Status" value={order.status} />
+          {order.status === "Completed" && (
+            <TouchableOpacity
+              onPress={() => {
+                updateOrderStatus(order.orderId, "EscrowCompleted");
+              }}
+            >
+              <Text color="white">Complete Escrow</Text>
+            </TouchableOpacity>
+          )}
+        </VStack>
+      </HStack>
     </VStack>
+  );
+};
+
+const OrderDetailsTextComponent = ({ name, value }: any) => {
+  return (
+    <HStack space="2">
+      <Text w="12" color="white" fontFamily={"Poppins_400Regular"}>
+        {name}
+      </Text>
+      <Text color="white" fontFamily={"Poppins_400Regular"}>
+        {value}
+      </Text>
+    </HStack>
   );
 };
