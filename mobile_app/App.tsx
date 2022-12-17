@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import {
   TouchableOpacity
 } from "react-native";
@@ -31,7 +30,7 @@ import WalletScreen from "./pages/WalletScreen";
 import { deleteValueFor, getValueFor } from "./utils/Storage";
 import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
 const Tab = createBottomTabNavigator();
-deleteValueFor("name");
+//deleteValueFor("name");
 LogBox.ignoreAllLogs();
 
 export default function App() {

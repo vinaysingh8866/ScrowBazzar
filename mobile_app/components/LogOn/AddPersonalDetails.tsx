@@ -1,25 +1,17 @@
 import { ref, set } from "firebase/database";
 import db from "../../firebase";
 import { days, months, save, years } from "../../utils/Storage";
-import { SetStateAction, useEffect, useState } from "react";
+import { useState } from "react";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import {
-  CheckIcon,
   HStack,
-  ScrollView,
-  Select,
   Stack,
-  Text,
   VStack,
-  ZStack,
 } from "native-base";
 import AppTitle from "../AppTitle";
 import AppSubtitle from "../AppSubtitile";
 import AppInput from "../AppInput";
-
 import LogInButtons from "./LogInButtons";
-import { TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
 import SelectElement from "../SelectElement";
 
 
