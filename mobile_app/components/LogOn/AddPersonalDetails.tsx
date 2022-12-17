@@ -60,9 +60,9 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             width="100%"
             placeholder="Full Name"
             value={name}
-            onChangeText={(text: SetStateAction<string>) => setName(text)}
+            onChangeText={setName}
             keyboardType={undefined}
-            maxLength={0}
+            maxLength={100}
             isFocused={undefined}
           ></AppInput>
         </HStack>
@@ -72,9 +72,9 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             width="100%"
             placeholder="Email"
             value={email}
-            onChangeText={(text: SetStateAction<string>) => setEmail(text)}
+            onChangeText={setEmail}
             keyboardType={undefined}
-            maxLength={0}
+            maxLength={100}
             isFocused={undefined}
           ></AppInput>
         </HStack>

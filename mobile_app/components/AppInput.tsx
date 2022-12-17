@@ -28,7 +28,7 @@ function AppInput({
 
   return (
     <Input
-      bg="#19334E"
+      bg="#23557A"
       w={width}
       h="100%"
       mx="auto"
