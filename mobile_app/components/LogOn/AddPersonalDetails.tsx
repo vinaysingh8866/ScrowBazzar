@@ -1,15 +1,29 @@
-
-import { getDatabase, ref, set } from "firebase/database";
+import { ref, set } from "firebase/database";
 import db from "../../firebase";
-import { save } from "../../utils/Storage";
-import { Platform } from "react-native";
-import { SetStateAction, useState } from "react";
+import { days, months, save, years } from "../../utils/Storage";
+import { SetStateAction, useEffect, useState } from "react";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { CheckIcon, HStack, Select, Text, VStack } from "native-base";
+import {
+  CheckIcon,
+  HStack,
+  ScrollView,
+  Select,
+  Stack,
+  Text,
+  VStack,
+  ZStack,
+} from "native-base";
 import AppTitle from "../AppTitle";
 import AppSubtitle from "../AppSubtitile";
 import AppInput from "../AppInput";
+
 import LogInButtons from "./LogInButtons";
+import { TouchableOpacity } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import SelectElement from "../SelectElement";
+
+
+
 const AddPersonalDetails = ({ setState, state }: any) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,9 +32,6 @@ const AddPersonalDetails = ({ setState, state }: any) => {
   const [year, setYear] = useState("");
 
   async function addUserToFirbase() {
-    // get db instance from firebase
-
-    // create a new user object
     const user = {
       name: name,
       email: email,
@@ -49,103 +60,50 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             width="100%"
             placeholder="Full Name"
             value={name}
-            onChangeText={(text: SetStateAction<string>) => setName(text)} keyboardType={undefined} maxLength={0} isFocused={undefined}          ></AppInput>
+            onChangeText={(text: SetStateAction<string>) => setName(text)}
+            keyboardType={undefined}
+            maxLength={0}
+            isFocused={undefined}
+          ></AppInput>
         </HStack>
+
         <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
             width="100%"
             placeholder="Email"
             value={email}
-            onChangeText={(text: SetStateAction<string>) => setEmail(text)} keyboardType={undefined} maxLength={0} isFocused={undefined}          ></AppInput>
+            onChangeText={(text: SetStateAction<string>) => setEmail(text)}
+            keyboardType={undefined}
+            maxLength={0}
+            isFocused={undefined}
+          ></AppInput>
         </HStack>
-        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
-          <Select
-            bg="#1E2C3D"
-            w="100"
-            h="10"
-            rounded="lg"
-            placeholder="Day"
-            _placeholder={{ color: "white" }}
-            color="white"
-            selectedValue={day}
-            onValueChange={(itemValue) => setDay(itemValue)}
-            _selectedItem={{
-              bg: "#4030FB",
-              endIcon: <CheckIcon size={4} />,
-            }}
-            shouldRasterizeIOS={true}
-            tintColor="#4030FB"
-            mode="dropdown"
-            backgroundColor={"#1E2C3D"}
-            background={"#1E2C3D"}
-            bgColor={"#1E2C3D"}
-          >
-            {Array.from(Array(31).keys()).map((i) => {
-              return (
-                <Select.Item
-                  key={i}
-                  label={i.toString()}
-                  value={i.toString()}
-                />
-              );
-            })}
-          </Select>
-          <Select
-            bg="#1E2C3D"
-            w="100"
-            h="10"
-            rounded="lg"
-            placeholder="Month"
-            _placeholder={{ color: "white" }}
-            color="white"
-            selectedValue={month}
-            onValueChange={(itemValue) => setMonth(itemValue)}
-            _selectedItem={{
-              bg: "#4030FB",
-              endIcon: <CheckIcon size={4} />,
-            }}
-          >
-            <Text>{month}</Text>
-            {Array.from(Array(12).keys()).map((i) => {
-              return (
-                <Select.Item
-                  my="1"
-                  key={i}
-                  label={i.toString()}
-                  value={i.toString()}
-                />
-              );
-            })}
-          </Select>
-          <Select
-            bg="#1E2C3D"
-            w="100"
-            h="10"
-            rounded="lg"
-            placeholder="Year"
-            _placeholder={{ color: "white" }}
-            onValueChange={(itemValue) => setYear(itemValue)}
-            color="white"
-            selectedValue={year}
-            _selectedItem={{
-              bg: "#4030FB",
-              endIcon: <CheckIcon size={4} />,
-            }}
-          >
-            {Array.from(Array(100).keys()).map((i) => {
-              return (
-                <Select.Item
-                  key={i}
-                  label={i.toString()}
-                  value={i.toString()}
-                />
-              );
-            })}
-          </Select>
+        <HStack w="100%" rounded="lg">
+          <SelectElement
+            setState={setDay}
+            s={day}
+            states={days}
+            placeHolder="Day"
+          />
+          <SelectElement
+            setState={setMonth}
+            s={month}
+            states={months}
+            placeHolder="Month"
+          />
+          <SelectElement
+            setState={setYear}
+            s={year}
+            states={years}
+            placeHolder="Year"
+          />
         </HStack>
-        <AppSubtitle>
-          By clicking next you agree to our terms and conditions and privacy
-        </AppSubtitle>
+
+        <Stack my="20">
+          <AppSubtitle>
+            By clicking next you agree to our terms and conditions and privacy
+          </AppSubtitle>
+        </Stack>
         <LogInButtons
           state={state}
           setState={setState}

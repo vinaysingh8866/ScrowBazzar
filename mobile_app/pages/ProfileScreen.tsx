@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { HStack, Image, Input, Stack, Text, VStack } from "native-base";
+import { HStack, Image,  Stack,  VStack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getValueFor } from "../utils/Storage";
-import Animated, {
-  SlideInLeft,
-  SlideInRight,
-  SlideOutLeft,
-} from "react-native-reanimated";
 import { FontAwesome } from "@expo/vector-icons";
-import { Touchable, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import db, { app, storage } from "../firebase";
+import db, { app } from "../firebase";
 import {
   getDownloadURL,
   getStorage,
   ref,
-  uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
-import { push, ref as dbRef, set } from "firebase/database";
+import { push, ref as dbRef } from "firebase/database";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import AppTitle from "../components/AppTitle";
