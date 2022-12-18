@@ -1,5 +1,5 @@
 import {
-  NativeBaseProvider
+  NativeBaseProvider, StatusBar
 } from "native-base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LogBox } from "react-native";
@@ -46,6 +46,8 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
+      <StatusBar backgroundColor="#060D16" barStyle="light-content" />
+
         {fontsLoaded ? (
           <>
             {state < 6 && <LogOn state={state} setState={setState} />}

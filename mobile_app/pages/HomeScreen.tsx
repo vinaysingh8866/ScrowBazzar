@@ -1,7 +1,5 @@
 import db from "../firebase";
-import { get, onValue, push, ref, update } from "firebase/database";
-import { FontAwesome } from "@expo/vector-icons";
-import OrderScreen from "./OdersScreen";
+import { onValue, ref } from "firebase/database";
 import AppInput from "../components/AppInput";
 import { useEffect, useState } from "react";
 import { HStack, Image, ScrollView, Stack, Text, VStack } from "native-base";
@@ -49,7 +47,12 @@ function HomeScreen() {
           <AppInput
             placeholder="Search"
             value={searchValue}
-            onChangeText={setSearchValue} width={"100%"} keyboardType={"default"} maxLength={100} isFocused={false}          />
+            onChangeText={setSearchValue}
+            width={"100%"}
+            keyboardType={"default"}
+            maxLength={100}
+            isFocused={false}
+          />
         </Stack>
         <ScrollView>
           <VStack mx="auto" w="100%" h="100%" space="5" my="10">
