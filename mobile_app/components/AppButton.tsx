@@ -14,11 +14,12 @@ function AppButton({
   return (
     <Button
       onPress={onPress}
-      bg={secondary ? "#1D3647" : "#4030FB"}
+      bg={secondary ? "#193F60" : "#4030FB"}
       w={width}
       h="50px"
       mx="auto"
       rounded="md"
+      _text={{ color: "#fff", fontSize: "16px", fontWeight: "400" }}
     >
       {children}
     </Button>

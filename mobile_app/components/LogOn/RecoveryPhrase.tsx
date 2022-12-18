@@ -18,6 +18,7 @@ const RecoveryPhrase = ({ setState, state }: any) => {
         </AppSubtitle>
         <HStack h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
+            secondary
             width="100%"
             placeholder="Recovery Phrase"
             value={phrase}

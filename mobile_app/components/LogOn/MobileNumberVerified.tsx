@@ -7,7 +7,15 @@ import LogInButtons from "./LogInButtons";
 const MobileNumberVerified = ({ setState, state }: any) => {
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>
-      <VStack mx="auto" p="4" w="100%" bg="#12202E" h="100%" rounded="lg">
+      <VStack
+        mx="auto"
+        p="4"
+        w="100%"
+        bg="#12202E"
+        h="100%"
+        rounded="lg"
+        alignItems={"center"}
+      >
         <AppTitle>Number Is Verified</AppTitle>
         <Stack mx="auto">
           <Image source={require("../../assets/mobile.png")}></Image>

@@ -3,18 +3,12 @@ import db from "../../firebase";
 import { days, months, save, years } from "../../utils/Storage";
 import { useState } from "react";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import {
-  HStack,
-  Stack,
-  VStack,
-} from "native-base";
+import { HStack, Stack, VStack } from "native-base";
 import AppTitle from "../AppTitle";
 import AppSubtitle from "../AppSubtitile";
 import AppInput from "../AppInput";
 import LogInButtons from "./LogInButtons";
 import SelectElement from "../SelectElement";
-
-
 
 const AddPersonalDetails = ({ setState, state }: any) => {
   const [name, setName] = useState("");
@@ -49,6 +43,7 @@ const AddPersonalDetails = ({ setState, state }: any) => {
         <AppSubtitle>Please enter your personal details below.</AppSubtitle>
         <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
+            secondary
             width="100%"
             placeholder="Full Name"
             value={name}
@@ -61,6 +56,7 @@ const AddPersonalDetails = ({ setState, state }: any) => {
 
         <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
+            secondary
             width="100%"
             placeholder="Email"
             value={email}
@@ -70,7 +66,14 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             isFocused={undefined}
           ></AppInput>
         </HStack>
-        <HStack w="100%" rounded="lg">
+        <HStack
+          w="100%"
+          h="50px"
+          rounded="lg"
+          mx="auto"
+          my="2"
+          justifyContent={"space-between"}
+        >
           <SelectElement
             setState={setDay}
             s={day}
@@ -90,12 +93,11 @@ const AddPersonalDetails = ({ setState, state }: any) => {
             placeHolder="Year"
           />
         </HStack>
-
-        <Stack my="20">
+        {/* <Stack bottom="2">
           <AppSubtitle>
             By clicking next you agree to our terms and conditions and privacy
           </AppSubtitle>
-        </Stack>
+        </Stack> */}
         <LogInButtons
           state={state}
           setState={setState}

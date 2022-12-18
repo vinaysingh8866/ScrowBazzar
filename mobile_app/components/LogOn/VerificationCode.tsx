@@ -24,11 +24,12 @@ const VerificationCode = ({ setState, state }: any) => {
           enter the code below.
         </AppSubtitle>
         {/** 4 input boxes that take signle digit as input and switch focus on index change**/}
-        <HStack w="100%" h="50px" rounded="lg">
+        <HStack w="100%" h="50px" rounded="lg" my="4">
           {[0, 1, 2, 3].map((x) => (
             <AppInput
-              width="20%"
-              placeholder="-"
+              width="50px"
+              secondary
+              placeholder=""
               value={code[x]}
               onChangeText={(text: string) => {
                 setCode(code.slice(0, x).concat([text], code.slice(x + 1, 4)));

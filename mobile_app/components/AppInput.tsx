@@ -9,6 +9,7 @@ function AppInput({
   maxLength = 1000,
   keyboardType = "default",
   isFocused = false,
+  secondary = false,
 }: {
   width: string;
   placeholder: string;
@@ -17,6 +18,7 @@ function AppInput({
   value: any;
   onChangeText: any;
   isFocused: any;
+  secondary: boolean;
 }) {
   useEffect(() => {}, [
     value,
@@ -28,7 +30,7 @@ function AppInput({
 
   return (
     <Input
-      bg="#12202E"
+      bg={secondary ? "#193F60" : "#12202E"}
       w={width}
       h="100%"
       mx="auto"

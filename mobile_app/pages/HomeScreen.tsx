@@ -2,9 +2,23 @@ import db from "../firebase";
 import { onValue, ref } from "firebase/database";
 import AppInput from "../components/AppInput";
 import { useEffect, useState } from "react";
-import { HStack, Image, ScrollView, Stack, Text, VStack } from "native-base";
+import {
+  Button,
+  HStack,
+  IconButton,
+  Image,
+  ScrollView,
+  Stack,
+  Text,
+  VStack,
+} from "native-base";
 import { SafeAreaView, TouchableOpacity } from "react-native";
 import OrderModel from "../components/OrderModel";
+import AppButton from "../components/AppButton";
+import AppTitleBar from "../components/AppTitleBar";
+import ServiceListComponent from "../components/ServiceListComponent";
+import { FontAwesome } from "@expo/vector-icons";
+
 function HomeScreen() {
   const [services, setServices] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -35,84 +49,47 @@ function HomeScreen() {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
-        <Text
-          color={modalVisible ? "transparent" : "white"}
-          mx="6"
-          fontFamily={"Poppins_700Bold"}
-          fontSize={"xl"}
-        >
-          Avialable Services
-        </Text>
-        <Stack h="10" m="6">
-          <AppInput
-            placeholder="Search"
-            value={searchValue}
-            onChangeText={setSearchValue}
-            width={"100%"}
-            keyboardType={"default"}
-            maxLength={100}
-            isFocused={false}
-          />
-        </Stack>
-        <ScrollView>
-          <VStack mx="auto" w="100%" h="100%" space="5" my="10">
+        <AppTitleBar title="Marketplace"></AppTitleBar>
+        <VStack mx="auto" w="100%" h="100%" space="4" px="4">
+          <HStack w="100%" h="40px" mx="auto" my="2" rounded="lg">
+            <AppInput
+              placeholder="Search"
+              value={searchValue}
+              onChangeText={setSearchValue}
+              width={"100%"}
+              keyboardType={"default"}
+              maxLength={100}
+              isFocused={false}
+            />
+          </HStack>
+          <ScrollView>
             {services.map((service, i) => {
               if (service.nameOfService.includes(searchValue)) {
                 return (
-                  <VStack
-                    bg="#12202E"
-                    mx="5%"
+                  <ServiceListComponent
+                    image={service.image}
+                    name={service.nameOfService}
+                    category={service.description}
+                    price={service.price}
                     key={i}
-                    w="90%"
-                    h="48"
-                    rounded="md"
                   >
-                    <HStack my="auto" ml="4">
-                      <Image
-                        src={service.image}
-                        alt="image"
-                        h="40"
-                        w="40"
-                        rounded={"md"}
-                      />
-                      <VStack mx="auto">
-                        <Text color="white" mx="auto">
-                          {service.nameOfService}
-                        </Text>
-                        <Text color="white" mx="auto">
-                          {service.price}
-                        </Text>
-                        <Text color="white" mx="auto">
-                          {service.description}
-                        </Text>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setModalVisible(true);
-                            setModalService(service);
-                          }}
-                        >
-                          <VStack
-                            mx="auto"
-                            mt="4"
-                            w="100"
-                            bgColor={"#060D16"}
-                            rounded={"lg"}
-                            h="10"
-                          >
-                            <Text mx="auto" my="auto" color="white">
-                              Order
-                            </Text>
-                          </VStack>
-                        </TouchableOpacity>
-                      </VStack>
-                    </HStack>
-                  </VStack>
+                    <AppButton
+                      onPress={() => {
+                        setModalVisible(true);
+                        setModalService(service);
+                      }}
+                      secondary={true}
+                    >
+                      Order
+                    </AppButton>
+                  </ServiceListComponent>
                 );
               }
             })}
-          </VStack>
-        </ScrollView>
+          </ScrollView>
+        </VStack>
       </SafeAreaView>
+
       <OrderModel
         isOpen={modalVisible}
         setOpen={setModalVisible}

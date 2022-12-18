@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { HStack, Image,  Stack,  VStack } from "native-base";
+import { HStack, Image, ScrollView, Stack, VStack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getValueFor } from "../utils/Storage";
 import { FontAwesome } from "@expo/vector-icons";
@@ -17,6 +17,7 @@ import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import AppTitle from "../components/AppTitle";
 import AppSubtitle from "../components/AppSubtitile";
+import AppTitleBar from "../components/AppTitleBar";
 const ProfileScreen = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -124,79 +125,87 @@ const ProfileScreen = () => {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
+        <AppTitleBar title="Profile"></AppTitleBar>
         <VStack px="2">
           <Stack px="2">
             <AppTitle>{name}</AppTitle>
             <AppSubtitle>{email}</AppSubtitle>
           </Stack>
-          <VStack px="4" paddingTop={"10"} mx="auto" w="100%">
-            <TouchableOpacity onPress={selectImageFromGallery}>
-              <Stack w="100%" h="250px" bg="#19334E" rounded={"lg"}>
-                <Stack mx="auto" my="auto">
-                  <Stack mx="auto">
-                    {image !== "" ? (
-                      <Image
-                        source={{ uri: image }}
-                        alt="image base"
-                        w="180"
-                        h="180"
-                        rounded="md"
-                      />
-                    ) : (
-                      <FontAwesome name="image" size={30} color="#D9F1FF" />
-                    )}
+          <ScrollView>
+            <VStack px="4" paddingTop={"4"} mx="auto" w="100%">
+              <TouchableOpacity onPress={selectImageFromGallery}>
+                <Stack
+                  w="100%"
+                  h="250px"
+                  bg={image ? "#060D16" : "#12202E"}
+                  my="2"
+                  rounded={"lg"}
+                >
+                  <Stack mx="auto" my="auto">
+                    <Stack mx="auto">
+                      {image !== "" ? (
+                        <Image
+                          source={{ uri: image }}
+                          alt="image base"
+                          size="250"
+                          rounded="md"
+                        />
+                      ) : (
+                        <FontAwesome name="image" size={30} color="#D9F1FF" />
+                      )}
+                    </Stack>
+
+                    {image === "" ? (
+                      <AppSubtitle>Tap here to add Image</AppSubtitle>
+                    ) : null}
                   </Stack>
-
-                  {image === "" ? (
-                    <AppSubtitle>Tap here to add Image</AppSubtitle>
-                  ) : null}
                 </Stack>
-              </Stack>
-            </TouchableOpacity>
+              </TouchableOpacity>
 
-            <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
-              <AppInput
-                placeholder="Serivice Name"
-                value={nameOfService}
-                onChangeText={setNameOfService}
-                width={"100%"}
-                maxLength={1000}
-                keyboardType={"default"}
-                isFocused={false}
-              ></AppInput>
-            </HStack>
-            <HStack w="100%" h="130px" mx="auto" my="2">
-              <AppInput
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-                width={"100%"}
-                maxLength={1000}
-                keyboardType={"default"}
-                isFocused={false}
-              ></AppInput>
-            </HStack>
-            <HStack w="100%" h="50px" mx="auto" my="2">
-              <AppInput
-                placeholder="Price"
-                value={price}
-                onChangeText={setPrice}
-                width={"100%"}
-                maxLength={100}
-                keyboardType={"default"}
-                isFocused={false}
-              ></AppInput>
-            </HStack>
-            <HStack w="100%" h="50px" mx="auto" my="2">
-              <AppButton
-                onPress={addServiceToDataBase}
-                width={"100%"}
-                secondary={false}
-              >
-                Add Service
-              </AppButton>
-            </HStack>
-          </VStack>
+              <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
+                <AppInput
+                  placeholder="Serivice Name"
+                  value={nameOfService}
+                  onChangeText={setNameOfService}
+                  width={"100%"}
+                  maxLength={1000}
+                  keyboardType={"default"}
+                  isFocused={false}
+                ></AppInput>
+              </HStack>
+              <HStack w="100%" h="130px" mx="auto" my="2">
+                <AppInput
+                  placeholder="Description"
+                  value={description}
+                  onChangeText={setDescription}
+                  width={"100%"}
+                  maxLength={1000}
+                  keyboardType={"default"}
+                  isFocused={false}
+                ></AppInput>
+              </HStack>
+              <HStack w="100%" h="50px" mx="auto" my="2">
+                <AppInput
+                  placeholder="Price"
+                  value={price}
+                  onChangeText={setPrice}
+                  width={"100%"}
+                  maxLength={100}
+                  keyboardType={"default"}
+                  isFocused={false}
+                ></AppInput>
+              </HStack>
+              <HStack w="100%" h="50px" mx="auto" my="2">
+                <AppButton
+                  onPress={addServiceToDataBase}
+                  width={"100%"}
+                  secondary={false}
+                >
+                  Add Service
+                </AppButton>
+              </HStack>
+            </VStack>
+          </ScrollView>
         </VStack>
       </SafeAreaView>
     </VStack>

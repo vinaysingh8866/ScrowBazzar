@@ -7,17 +7,18 @@ const AddFunds = ({ value, setValue }: any) => {
   return (
     <VStack bg="rgba(0,0,0,0)">
       <VStack p="2">
-        <HStack h="50px" mx="auto" my="2" rounded="lg">
+        <HStack w="100%" h="50px" mx="auto" my="2" rounded="lg">
           <AppInput
             placeholder="Enter Amount"
             value={value}
             width="75%"
             keyboardType={"default"}
             maxLength={1000}
-            onChangeText={(text:any) => {
+            onChangeText={(text: any) => {
               setValue(text);
             }}
             isFocused={false}
+            secondary
           ></AppInput>
           <AppButton onPress={() => setValue("0")} width="20%" secondary={true}>
             Clear

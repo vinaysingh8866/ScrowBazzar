@@ -1,12 +1,125 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { get, push, ref, update } from "firebase/database";
-import { HStack, Image, Modal, Stack, Text, VStack } from "native-base";
+import {
+  Button,
+  HStack,
+  Icon,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Stack,
+  Text,
+  VStack,
+} from "native-base";
+import { background } from "native-base/lib/typescript/theme/styled-system";
 import { useState } from "react";
 import { SafeAreaView, TouchableOpacity } from "react-native";
 import db from "../firebase";
 import { uuidv4 } from "../pages/ProfileScreen";
 import { getValueFor } from "../utils/Storage";
+import AppButton from "./AppButton";
+import AppSubtitle from "./AppSubtitile";
+import AppTitle from "./AppTitle";
+import AppTitleBar from "./AppTitleBar";
+import ServiceListComponent from "./ServiceListComponent";
 
+const QuantityButtons = ({
+  numberOfItems,
+  setNumberOfItems,
+}: {
+  numberOfItems: any;
+  setNumberOfItems: any;
+}) => {
+  return (
+    <>
+      <AppButton
+        secondary
+        width="30%"
+        onPress={() => {
+          if (numberOfItems > 1) {
+            setNumberOfItems(numberOfItems - 1);
+          }
+        }}
+      >
+        <FontAwesome name="minus" size={24} color="white" />
+      </AppButton>
+      <Text
+        color="white"
+        width="30%"
+        textAlign={"center"}
+        fontSize={"2xl"}
+        my="auto"
+      >
+        {numberOfItems}
+      </Text>
+      <AppButton
+        secondary
+        width="30%"
+        onPress={() => {
+          setNumberOfItems(numberOfItems + 1);
+        }}
+      >
+        <FontAwesome name="plus" size={24} color="white" />
+      </AppButton>
+    </>
+  );
+};
+
+const CompleteOrder = ({
+  modelService,
+  numberOfItems,
+  onPress,
+}: {
+  modelService: any;
+  numberOfItems: any;
+  onPress: any;
+}) => {
+  return (
+    <HStack
+      w="100%"
+      h="70px"
+      px="2"
+      position={"absolute"}
+      bottom="2"
+      zIndex="3"
+    >
+      <Pressable
+        bgColor={"#347D1B"}
+        w="100%"
+        rounded={"lg"}
+        flexDirection="row"
+        overflow={"hidden"}
+        onPress={onPress}
+      >
+        <Stack w="50%" h="100%" px="3" py="2">
+          <HStack height={"50%"} alignItems={"center"}>
+            <Text color={"white"} fontWeight="medium">
+              Number of items: {numberOfItems}
+            </Text>
+          </HStack>
+          <HStack height={"50%"} alignItems={"center"}>
+            <Text color={"white"} fontWeight="black">
+              ₹{modelService.price * numberOfItems}
+            </Text>
+          </HStack>
+        </Stack>
+        <HStack
+          w="50%"
+          h="100%"
+          p="4"
+          alignItems={"center"}
+          justifyContent="flex-end"
+        >
+          <Text color={"white"} fontWeight="bold" pr="2">
+            Complete Order
+          </Text>
+          <FontAwesome name="chevron-right" size={24} color="white" />
+        </HStack>
+      </Pressable>
+    </HStack>
+  );
+};
 const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   const [numberOfItems, setNumberOfItems] = useState(1);
 
@@ -64,120 +177,71 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
       mt="-9"
     >
       <Modal.Content>
-        <VStack bgColor={"#09151E"} w="100%" h="100%">
+        <VStack bgColor={"#09151E"} w="100%" h="100%" pt="4">
+          <CompleteOrder
+            onPress={() => {
+              orderService();
+              setOpen(false);
+            }}
+            numberOfItems={numberOfItems}
+            modelService={modelService}
+          ></CompleteOrder>
           <SafeAreaView>
-            <VStack mx="2">
-              <TouchableOpacity onPress={() => setOpen(false)}>
-                <FontAwesome name="angle-left" size={34} color="white" />
-              </TouchableOpacity>
-
-              <VStack mt="4" rounded="lg" bg="#12202E">
-                <HStack mx="auto" space="24">
-                  <Image
-                    src={modelService.image}
+            <AppTitleBar
+              back
+              title={modelService.nameOfService}
+              onPress={() => setOpen(false)}
+            ></AppTitleBar>
+            <ScrollView h="90%" pt="2">
+              <VStack mx="auto" w="100%" h="100%" space="4" px="4">
+                <VStack rounded="lg">
+                  <ServiceListComponent
+                    image={modelService.image}
+                    name={modelService.nameOfService}
+                    category={modelService.description}
+                    price={modelService.price}
+                  >
+                    <QuantityButtons
+                      numberOfItems={numberOfItems}
+                      setNumberOfItems={setNumberOfItems}
+                    ></QuantityButtons>
+                  </ServiceListComponent>
+                </VStack>
+                <VStack mx="auto" w="100%" rounded={"lg"}>
+                  <VStack
+                    mx="auto"
+                    mt="4"
+                    w="100%"
                     rounded={"lg"}
-                    alt="image"
-                    m="2"
-                    h="40"
-                    w="40"
-                  />
-                  <VStack mx="auto" ml="-10" my="auto">
-                    <Text color="white">{modelService.nameOfService}</Text>
-                    <Text color="white">{modelService.price}</Text>
-                    <Text color="white">{modelService.description}</Text>
-                    <HStack ml="-10" mt="2">
-                      <TouchableOpacity
-                        onPress={() => {
-                          if (numberOfItems > 1) {
-                            setNumberOfItems(numberOfItems - 1);
-                          }
-                        }}
-                      >
-                        <Stack
-                          my="auto"
-                          bg="#1D3647"
-                          px="2"
-                          p="1"
-                          rounded={"lg"}
-                        >
-                          <FontAwesome name="minus" size={24} color="white" />
-                        </Stack>
-                      </TouchableOpacity>
-                      <Text color="white" fontSize={"2xl"} mx="auto" my="auto">
-                        {numberOfItems}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setNumberOfItems(numberOfItems + 1);
-                        }}
-                      >
-                        <Stack
-                          my="auto"
-                          bg="#1D3647"
-                          px="2"
-                          p="1"
-                          rounded={"lg"}
-                        >
-                          <FontAwesome name="plus" size={24} color="white" />
-                        </Stack>
-                      </TouchableOpacity>
-                    </HStack>
-                  </VStack>
-                </HStack>
-              </VStack>
-              <VStack mx="auto" mt="4" w="100%" rounded={"lg"}>
-                <Text color={"white"}>Item Summary</Text>
-                <VStack
-                  mx="auto"
-                  mt="4"
-                  w="100%"
-                  rounded={"lg"}
-                  bg="#12202E"
-                  h="40"
-                  p="4"
-                >
-                  <HStack w="100%" justifyContent={"space-between"}>
-                    <Text color="white">Item Name</Text>
-                    <Text color="white">{modelService.nameOfService}</Text>
-                  </HStack>
-
-                  <HStack w="100%" justifyContent={"space-between"}>
-                    <Text color="white">Item Price</Text>
-                    <Text color="white">{modelService.price}</Text>
-                  </HStack>
-
-                  <HStack w="100%" justifyContent={"space-between"}>
-                    <Text color="white">Item Quantity</Text>
-                    <Text color="white">{numberOfItems}</Text>
-                  </HStack>
-                  <HStack mt="4" w="100%" justifyContent={"space-between"}>
-                    <Text color="white">Total</Text>
+                    bg="#12202E"
+                    p="4"
+                  >
                     <Text color="white">
-                      {modelService.price * numberOfItems}
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation{" "}
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt {"\n"}
+                      {"\n"}Labore et dolore magna aliqua. Ut enim ad minim
+                      veniam, quis nostrud exercitation Lorem ipsum dolor sit
+                      amet, consectetur adipiscing elit, sed do eiusmod tempor
+                      incididunt ut labore et dolore magna aliqua. Ut enim ad
+                      minim veniam, quis nostrud exercitation{"\n"}
+                      {"\n"} Lorem ipsum dolor sit amet, consectetur adipiscing
+                      elit, sed do eiusmod tempor incididunt ut labore et dolore
+                      magna aliqua. Ut enim ad minim veniam, quis nostrud
+                      exercitation Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit, sed do eiusmod tempor incididunt ut
+                      labore et dolore magna aliqua. Ut enim ad minim veniam,
+                      quis nostrud exercitation
                     </Text>
-                  </HStack>
+                  </VStack>
                 </VStack>
               </VStack>
-              <TouchableOpacity
-                onPress={() => {
-                  orderService();
-                  setOpen(false);
-                }}
-              >
-                <VStack
-                  mx="auto"
-                  mt="4"
-                  w="100%"
-                  bg="#4030FB"
-                  py="4"
-                  rounded={"lg"}
-                >
-                  <Text color={"white"} mx="auto">
-                    Order
-                  </Text>
-                </VStack>
-              </TouchableOpacity>
-            </VStack>
+            </ScrollView>
           </SafeAreaView>
         </VStack>
       </Modal.Content>

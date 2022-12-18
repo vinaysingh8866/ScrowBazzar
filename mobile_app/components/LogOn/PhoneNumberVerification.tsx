@@ -19,6 +19,7 @@ const PhoneNumberVerification = ({ setState, state }: any) => {
         </AppSubtitle>
         <HStack w="100%" my="4" h="50px" mx="auto" rounded="lg">
           <AppInput
+            secondary
             width="100%"
             placeholder="Phone Number"
             keyboardType={"default"}

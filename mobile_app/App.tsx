@@ -1,6 +1,4 @@
-import {
-  NativeBaseProvider, StatusBar
-} from "native-base";
+import { NativeBaseProvider, StatusBar } from "native-base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LogBox } from "react-native";
 import LogOn from "./pages/LogOn";
@@ -13,14 +11,14 @@ import {
   Poppins_600SemiBold,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import WalletScreen from "./pages/WalletScreen";
 import { deleteValueFor, getValueFor } from "./utils/Storage";
 import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
 import OrderScreen from "./pages/OdersScreen";
 import HomeScreen from "./pages/HomeScreen";
 const Tab = createBottomTabNavigator();
-//deleteValueFor("name");
+// deleteValueFor("name");
 LogBox.ignoreAllLogs();
 
 export default function App() {
@@ -46,7 +44,7 @@ export default function App() {
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-      <StatusBar backgroundColor="#060D16" barStyle="light-content" />
+        <StatusBar backgroundColor="#060D16" barStyle="light-content" />
 
         {fontsLoaded ? (
           <>
