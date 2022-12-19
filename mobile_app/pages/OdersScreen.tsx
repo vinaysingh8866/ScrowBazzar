@@ -114,7 +114,7 @@ const SellerOrdersScreen = ({ order }: any) => {
         body: JSON.stringify({
           orderid: orderId,
         }),
-      }).finally(() => setLoading(false));
+      });
       console.log(approve);
     }
     if (status === "Approved") {
@@ -126,7 +126,7 @@ const SellerOrdersScreen = ({ order }: any) => {
         body: JSON.stringify({
           orderid: orderId,
         }),
-      }).finally(() => setLoading(false));
+      });
       console.log(process);
     }
     if (status === "Processing") {
@@ -141,7 +141,7 @@ const SellerOrdersScreen = ({ order }: any) => {
             orderid: orderId,
           }),
         }
-      ).finally(() => setLoading(false));
+      );
       console.log(complete);
     }
     const buyerEmail = order.buyerEmail.replace(".", "_");
@@ -166,6 +166,7 @@ const SellerOrdersScreen = ({ order }: any) => {
         });
       }
     }
+    setLoading(false)
   }
   return (
     <VStack bg="#09151E">
@@ -209,7 +210,7 @@ const SellerOrdersScreen = ({ order }: any) => {
             </VStack>
             <HStack w="100%" h="50px">
               {loading ? (
-                <Spinner size="2xl" mx="auto" color="#D9F1FF" />
+                <Spinner size="lg" mx="auto" color="#D9F1FF" />
               ) : order.status !== "EscrowCompleted" &&
                 order.status !== "Completed" ? (
                 <AppButton

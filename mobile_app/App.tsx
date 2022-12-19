@@ -18,7 +18,7 @@ import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
 import OrderScreen from "./pages/OdersScreen";
 import HomeScreen from "./pages/HomeScreen";
 const Tab = createBottomTabNavigator();
-// deleteValueFor("name");
+//deleteValueFor("name");
 LogBox.ignoreAllLogs();
 
 export default function App() {
