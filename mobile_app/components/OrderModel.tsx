@@ -126,10 +126,19 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   async function orderService() {
     const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
+
     email = email.replace(".", "_");
+    const buyerRef = ref(db, "users/" + email + "/info");
+    const buyerInfo = await get(buyerRef);
+    const buyerBalance = buyerInfo.val().balance;
     const sellerMail = modelService.email.replace(".", "_");
     const userRef = ref(db, "users/" + email + "/orders");
     const sellerRef = ref(db, "users/" + sellerMail + "/orders");
+    if (buyerBalance < numberOfItems * modelService.price) {
+      alert("Insufficient Balance");
+      return;
+    }
+
     const dataRes = await fetch("http://157.230.188.72:8080/create_order", {
       method: "POST",
       headers: {
@@ -160,9 +169,6 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
     await push(sellerRef, order);
 
     // reduce the balance of buyer
-    const buyerRef = ref(db, "users/" + email + "/info");
-    const buyerInfo = await get(buyerRef);
-    const buyerBalance = buyerInfo.val().balance;
     await update(buyerRef, {
       balance: buyerBalance - numberOfItems * modelService.price,
     });
