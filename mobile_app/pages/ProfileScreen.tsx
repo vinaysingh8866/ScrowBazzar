@@ -125,7 +125,7 @@ const ProfileScreen = () => {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
-        <AppTitleBar title="Profile"></AppTitleBar>
+        <AppTitleBar title="Profile" back={false} onPress={undefined}></AppTitleBar>
         <VStack px="2">
           <Stack px="2">
             <AppTitle>{name}</AppTitle>
@@ -170,8 +170,7 @@ const ProfileScreen = () => {
                   width={"100%"}
                   maxLength={1000}
                   keyboardType={"default"}
-                  isFocused={false}
-                ></AppInput>
+                  isFocused={false} secondary={false}                ></AppInput>
               </HStack>
               <HStack w="100%" h="130px" mx="auto" my="2">
                 <AppInput
@@ -181,8 +180,7 @@ const ProfileScreen = () => {
                   width={"100%"}
                   maxLength={1000}
                   keyboardType={"default"}
-                  isFocused={false}
-                ></AppInput>
+                  isFocused={false} secondary={false}                ></AppInput>
               </HStack>
               <HStack w="100%" h="50px" mx="auto" my="2">
                 <AppInput
@@ -192,8 +190,7 @@ const ProfileScreen = () => {
                   width={"100%"}
                   maxLength={100}
                   keyboardType={"default"}
-                  isFocused={false}
-                ></AppInput>
+                  isFocused={false} secondary={false}                ></AppInput>
               </HStack>
               <HStack w="100%" h="50px" mx="auto" my="2">
                 <AppButton

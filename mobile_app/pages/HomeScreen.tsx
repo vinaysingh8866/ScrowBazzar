@@ -3,13 +3,8 @@ import { onValue, ref } from "firebase/database";
 import AppInput from "../components/AppInput";
 import { useEffect, useState } from "react";
 import {
-  Button,
   HStack,
-  IconButton,
-  Image,
   ScrollView,
-  Stack,
-  Text,
   VStack,
 } from "native-base";
 import { SafeAreaView, TouchableOpacity } from "react-native";
@@ -17,7 +12,6 @@ import OrderModel from "../components/OrderModel";
 import AppButton from "../components/AppButton";
 import AppTitleBar from "../components/AppTitleBar";
 import ServiceListComponent from "../components/ServiceListComponent";
-import { FontAwesome } from "@expo/vector-icons";
 
 function HomeScreen() {
   const [services, setServices] = useState<any[]>([]);
@@ -49,7 +43,7 @@ function HomeScreen() {
   return (
     <VStack bg="#060D16" w="100%" h="100%">
       <SafeAreaView>
-        <AppTitleBar title="Marketplace"></AppTitleBar>
+        <AppTitleBar title="Marketplace" back={false} onPress={undefined}></AppTitleBar>
         <VStack mx="auto" w="100%" h="100%" space="4" px="4">
           <HStack w="100%" h="40px" mx="auto" my="2" rounded="lg">
             <AppInput
@@ -59,8 +53,7 @@ function HomeScreen() {
               width={"100%"}
               keyboardType={"default"}
               maxLength={100}
-              isFocused={false}
-            />
+              isFocused={false} secondary={false}            />
           </HStack>
           <ScrollView>
             {services.map((service, i) => {
@@ -77,9 +70,8 @@ function HomeScreen() {
                       onPress={() => {
                         setModalVisible(true);
                         setModalService(service);
-                      }}
-                      secondary={true}
-                    >
+                      } }
+                      secondary={true} width={"100%"}                >
                       Order
                     </AppButton>
                   </ServiceListComponent>

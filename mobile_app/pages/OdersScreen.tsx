@@ -14,10 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import db from "../firebase";
 import { get, onValue, ref, update } from "firebase/database";
 import { getValueFor } from "../utils/Storage";
-import { Pressable, Touchable, TouchableOpacity } from "react-native";
 import AppTitleBar from "../components/AppTitleBar";
 import ServiceListComponent from "../components/ServiceListComponent";
-import AppTitle from "../components/AppTitle";
 import AppButton from "../components/AppButton";
 import AppToggle from "../components/AppToggle";
 import { FontAwesome } from "@expo/vector-icons";
@@ -53,7 +51,7 @@ const OrderScreen = () => {
   return (
     <VStack bg="#09151E" w="100%" h="100%">
       <SafeAreaView>
-        <AppTitleBar title="My Orders"></AppTitleBar>
+        <AppTitleBar title="My Orders" back={false} onPress={undefined}></AppTitleBar>
         <AppToggle
           toggle={toggle}
           setToggle={setToggle}
@@ -215,18 +213,17 @@ const SellerOrdersScreen = ({ order }: any) => {
               ) : order.status !== "EscrowCompleted" &&
                 order.status !== "Completed" ? (
                 <AppButton
-                  onPress={() => {
-                    if (order.status === "Pending") {
-                      updateOrderStatus(order.orderId, "Approved");
-                    }
-                    if (order.status === "Approved") {
-                      updateOrderStatus(order.orderId, "Processing");
-                    }
-                    if (order.status === "Processing") {
-                      updateOrderStatus(order.orderId, "Completed");
-                    }
-                  }}
-                >
+                      onPress={() => {
+                        if (order.status === "Pending") {
+                          updateOrderStatus(order.orderId, "Approved");
+                        }
+                        if (order.status === "Approved") {
+                          updateOrderStatus(order.orderId, "Processing");
+                        }
+                        if (order.status === "Processing") {
+                          updateOrderStatus(order.orderId, "Completed");
+                        }
+                      } } width={"100%"} secondary={false}                >
                   <Text color="white">
                     {order.status === "Pending" && "Approve"}
                     {order.status === "Approved" && "Start Processing"}
@@ -416,11 +413,10 @@ const BuyerOrdersScreen = ({ order }: any) => {
             <Spinner size="lg" mx="auto" color="#D9F1FF" />
           ) : (
             <AppButton
-              secondary
-              onPress={() => {
-                updateOrderStatus(order.orderId, "EscrowCompleted");
-              }}
-            >
+                secondary
+                onPress={() => {
+                  updateOrderStatus(order.orderId, "EscrowCompleted");
+                } } width={"100%"}           >
               <Text color="white">Complete Escrow</Text>
             </AppButton>
           )
