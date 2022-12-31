@@ -809,6 +809,39 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+  @Transaction()
+  public async AcceptOrderDelivery(ctx: Context, id: string): Promise<boolean> {
+    await this.CheckInitialized(ctx);
+    const exists = await this.OrderExists(ctx, id);
+    if (!exists) {
+      throw new Error(`The Order ${id} does not exist`);
+    }
+
+    const orderJSON = await ctx.stub.getState(id);
+    const order = JSON.parse(orderJSON.toString()) as CustomOrder;
+    if (order.Status === "Completed") {
+      order.Status = "EscrowCompleted";
+    }
+    else {
+      throw new Error(`The Order ${id} is not completed`);
+    }
+    const amountToTransferOnEvent = order.CustomTransferOnEvent[3];
+    if (amountToTransferOnEvent !== "0") {
+      const transferResp = await this.Transfer(ctx, escrowKey, order.Account, amountToTransferOnEvent);
+      if (!transferResp) {
+        throw new Error(`Failed to transfer money to seller`);
+      }
+    }
+
+    ctx.stub.putState(
+      id,
+      Buffer.from(stringify(order))
+    );
+    const acceptOrderEvent = { orderId: id };
+    ctx.stub.setEvent("AcceptOrder", Buffer.from(stringify(acceptOrderEvent)));
+    return true;
+  }
+
   async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
 
     if (from === to) {
