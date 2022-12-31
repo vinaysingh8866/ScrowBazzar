@@ -841,6 +841,7 @@ export class ScrowBazzarContract extends Contract {
     ctx.stub.setEvent("AcceptOrder", Buffer.from(stringify(acceptOrderEvent)));
     return true;
   }
+  
 
   async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
 
