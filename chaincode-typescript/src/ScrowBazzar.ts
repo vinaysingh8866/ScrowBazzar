@@ -648,20 +648,24 @@ export class ScrowBazzarContract extends Contract {
 
 
   @Transaction()
-  public async CreateCustomEscrowOrder(ctx: Context, id: string, seller: string, amount: string, buyers: string[], shares: string[], customTranfer: string[]): Promise<boolean> {
+  public async CreateCustomEscrowOrder(ctx: Context, id: string, seller: string, amount: string, buyers: string, shares: string, customTranfer: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
     const exists = await this.OrderExists(ctx, id);
     if (exists) {
       throw new Error(`The Order ${id} already exists`);
     }
+    const Owners = buyers.split(",");
+    const OwnerShares = shares.split(",");
+    const CustomTransferOnEvent = customTranfer.split(",");
+
     const order: CustomOrder = {
       OrderId: id,
       Account: seller,
       Amount: amount,
-      Owners: buyers,
-      OwnerShares: shares,
+      Owners: Owners,
+      OwnerShares: OwnerShares,
       Status: "Pending",
-      CustomTransferOnEvent: customTranfer
+      CustomTransferOnEvent: CustomTransferOnEvent
     };
     ctx.stub.putState(
       id,
