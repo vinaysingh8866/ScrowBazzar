@@ -175,6 +175,9 @@ app.post("/complete_escrow", async (req: any, res: any) => {
     }
 });
 
+//  public async CreateCustomEscrowOrder(ctx: Context, id: string, seller: string, amount: string, buyers: string[], shares: string[], customTranfer: string[]): Promise<boolean> {
+// '{"function":"CreateCustomEscrowOrder","Args":["0001","hdsp","1000","[\"vinay\",\"vinay2\"]","[\"50\",\"50\"]","[\"vinay\",\"vinay2\"]"]}'
+
 
 
 

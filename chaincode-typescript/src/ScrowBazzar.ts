@@ -672,8 +672,9 @@ export class ScrowBazzarContract extends Contract {
       Buffer.from(stringify(sortKeysRecursive(order)))
     );
     let buyer = 0
-    for (buyer = 0; buyer < buyers.length; buyer++) {
-      const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [buyers[buyer]]);
+    
+    for (buyer = 0; buyer < Owners.length; buyer++) {
+      const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [Owners[buyer]]);
       const buyerOrderListBytes = await ctx.stub.getState(buyerOrderListKey);
       let orderList = [];
       if (!buyerOrderListBytes || buyerOrderListBytes.length === 0) {
@@ -685,12 +686,12 @@ export class ScrowBazzarContract extends Contract {
       orderList.push(id);
       await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
       //transfer money to escrow
-      const transferResp = await this.Transfer(ctx, buyers[buyer], escrowKey, shares[buyer]);
+      const transferResp = await this.Transfer(ctx, Owners[buyer], escrowKey, OwnerShares[buyer]);
       if (!transferResp) {
         throw new Error(`Failed to transfer money to escrow`);
       }
-
     }
+
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
     const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
     let orderList = [];
