@@ -841,6 +841,16 @@ export class ScrowBazzarContract extends Contract {
     ctx.stub.setEvent("AcceptOrder", Buffer.from(stringify(acceptOrderEvent)));
     return true;
   }
+
+  @Transaction(false)
+  public async EscrowBalance(ctx: Context): Promise<string> {
+    const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
+    const balanceBytes = await ctx.stub.getState(balanceKey);
+    if (!balanceBytes || balanceBytes.length === 0) {
+      throw new Error(`The escrow account ${escrowKey} has no balance`);
+    }
+    return balanceBytes.toString();
+  }
   
 
   async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
