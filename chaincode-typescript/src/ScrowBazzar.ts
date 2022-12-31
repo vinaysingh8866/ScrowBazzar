@@ -633,7 +633,7 @@ export class ScrowBazzarContract extends Contract {
       const strValue = Buffer.from(result.value.value.toString()).toString(
         "utf8"
       );
-      let record;
+      let record: string;
       try {
         record = JSON.parse(strValue);
       } catch (err) {
@@ -709,16 +709,14 @@ export class ScrowBazzarContract extends Contract {
     for (const shares in OwnerShares) {
       //transfer money to escrow
       const transferResp = await this.Transfer(ctx, Owners[shares], escrowKey, OwnerShares[shares]);
+      //wait 100ms
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       if (!transferResp) {
         throw new Error(`Failed to transfer money to escrow`);
       }
     }
     //check escrow balance
-    const escrowBalance = await this.EscrowBalance(ctx);
-    if (escrowBalance < amount) {
-      //fix this by adding not transfered amount to escrow account
-
-    }
 
     
 
