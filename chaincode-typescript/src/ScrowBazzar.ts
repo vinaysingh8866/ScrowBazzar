@@ -667,7 +667,38 @@ export class ScrowBazzarContract extends Contract {
       id,
       Buffer.from(stringify(sortKeysRecursive(order)))
     );
-    const createOrderEvent = { orderId: id };
+    let buyer = 0
+    for (buyer = 0; buyer < buyers.length; buyer++) {
+      const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [buyers[buyer]]);
+      const buyerOrderListBytes = await ctx.stub.getState(buyerOrderListKey);
+      let orderList = [];
+      if (!buyerOrderListBytes || buyerOrderListBytes.length === 0) {
+        orderList = [];
+      }
+      else {
+        orderList = JSON.parse(buyerOrderListBytes.toString());
+      }
+      orderList.push(id);
+      await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
+      //transfer money to escrow
+      const transferResp = await this.Transfer(ctx, buyers[buyer], escrowKey, shares[buyer]);
+      if (!transferResp) {
+        throw new Error(`Failed to transfer money to escrow`);
+      }
+
+    }
+    const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
+    const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
+    let orderList = [];
+    if (!sellerOrderListBytes || sellerOrderListBytes.length === 0) {
+      orderList = [];
+    }
+    else {
+      orderList = JSON.parse(sellerOrderListBytes.toString());
+    }
+    orderList.push(id);
+    await ctx.stub.putState(sellerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
+    const createOrderEvent = { id, amount, seller, buyers, shares };
     ctx.stub.setEvent("CreateOrder", Buffer.from(stringify(createOrderEvent)));
     return true;
 
