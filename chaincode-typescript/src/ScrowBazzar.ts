@@ -457,7 +457,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as Order;
-    if (order.Status !== 'Pending') {
+    if (order.Status === 'Pending') {
       order.Status = "Approved";
     }
     else {
@@ -493,7 +493,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as Order;
-    if (order.Status !== 'Approved') {
+    if (order.Status === 'Approved') {
       order.Status = "Processing";
     }
     else {
@@ -528,7 +528,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as Order;
-    if (order.Status !== 'Processing') {
+    if (order.Status === 'Processing') {
       order.Status = "Completed";
     }
     else {
@@ -669,7 +669,7 @@ export class ScrowBazzarContract extends Contract {
     };
     ctx.stub.putState(
       id,
-      Buffer.from(stringify(sortKeysRecursive(order)))
+      Buffer.from(stringify(order))
     );
     let buyer = 0
     
@@ -684,7 +684,7 @@ export class ScrowBazzarContract extends Contract {
         orderList = JSON.parse(buyerOrderListBytes.toString());
       }
       orderList.push(id);
-      await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
+      await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
       //transfer money to escrow
       const transferResp = await this.Transfer(ctx, Owners[buyer], escrowKey, OwnerShares[buyer]);
       if (!transferResp) {
@@ -702,7 +702,7 @@ export class ScrowBazzarContract extends Contract {
       orderList = JSON.parse(sellerOrderListBytes.toString());
     }
     orderList.push(id);
-    await ctx.stub.putState(sellerOrderListKey, Buffer.from(stringify(sortKeysRecursive(orderList))));
+    await ctx.stub.putState(sellerOrderListKey, Buffer.from(stringify(orderList)));
     const createOrderEvent = { id, amount, seller, buyers, shares };
     ctx.stub.setEvent("CreateOrder", Buffer.from(stringify(createOrderEvent)));
     return true;
@@ -719,7 +719,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as CustomOrder;
-    if (order.Status !== "Pending") {
+    if (String(order.Status) === String("Pending")) {
       order.Status = "Approved";
     }
     else {
@@ -736,7 +736,7 @@ export class ScrowBazzarContract extends Contract {
 
     ctx.stub.putState(
       id,
-      Buffer.from(stringify(sortKeysRecursive(order)))
+      Buffer.from(stringify(order))
     );
     const approveOrderEvent = { orderId: id };
     ctx.stub.setEvent("ApproveOrder", Buffer.from(stringify(approveOrderEvent)));
@@ -753,7 +753,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as CustomOrder;
-    if (order.Status !== "Approved") {
+    if (order.Status === "Approved") {
       order.Status = "Processed";
     }
     else {
@@ -769,7 +769,7 @@ export class ScrowBazzarContract extends Contract {
 
     ctx.stub.putState(
       id,
-      Buffer.from(stringify(sortKeysRecursive(order)))
+      Buffer.from(stringify(order))
     );
     const processOrderEvent = { orderId: id };
     ctx.stub.setEvent("ProcessOrder", Buffer.from(stringify(processOrderEvent)));
@@ -786,7 +786,7 @@ export class ScrowBazzarContract extends Contract {
 
     const orderJSON = await ctx.stub.getState(id);
     const order = JSON.parse(orderJSON.toString()) as CustomOrder;
-    if (order.Status !== "Processed") {
+    if (order.Status === "Processed") {
       order.Status = "Completed";
     }
     else {
@@ -802,7 +802,7 @@ export class ScrowBazzarContract extends Contract {
 
     ctx.stub.putState(
       id,
-      Buffer.from(stringify(sortKeysRecursive(order)))
+      Buffer.from(stringify(order))
     );
     const completeOrderEvent = { orderId: id };
     ctx.stub.setEvent("CompleteOrder", Buffer.from(stringify(completeOrderEvent)));
