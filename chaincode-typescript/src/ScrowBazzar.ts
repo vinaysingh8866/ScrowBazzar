@@ -671,26 +671,6 @@ export class ScrowBazzarContract extends Contract {
       id,
       Buffer.from(stringify(order))
     );
-    // let buyer = 0
-    
-    // for (buyer = 0; buyer < Owners.length; buyer++) {
-    //   const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [Owners[buyer]]);
-    //   const buyerOrderListBytes = await ctx.stub.getState(buyerOrderListKey);
-    //   let orderList = [];
-    //   if (!buyerOrderListBytes || buyerOrderListBytes.length === 0) {
-    //     orderList = [];
-    //   }
-    //   else {
-    //     orderList = JSON.parse(buyerOrderListBytes.toString());
-    //   }
-    //   orderList.push(id);
-    //   await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
-    //   //transfer money to escrow
-    //   const transferResp = await this.Transfer(ctx, Owners[buyer], escrowKey, OwnerShares[buyer]);
-    //   if (!transferResp) {
-    //     throw new Error(`Failed to transfer money to escrow`);
-    //   }
-    // }
 
     for (const owner in Owners) {
       const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [Owners[owner]]);
@@ -705,21 +685,44 @@ export class ScrowBazzarContract extends Contract {
       orderList.push(id);
       await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
     }
+    let tot= 0;
 
     for (const shares in OwnerShares) {
       //transfer money to escrow
       const transferResp = await this.Transfer(ctx, Owners[shares], escrowKey, OwnerShares[shares]);
-      //wait 100ms
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       if (!transferResp) {
         throw new Error(`Failed to transfer money to escrow`);
       }
+      const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [Owners[shares]]);
+      const fromCurrentBalanceBytes = await ctx.stub.getState(fromBalanceKey);
+
+      if (!fromCurrentBalanceBytes || fromCurrentBalanceBytes.length === 0) {
+        throw new Error(`client account ${[Owners[shares]]} has no balance`);
+      }
+
+      const fromCurrentBalance = parseInt(fromCurrentBalanceBytes.toString());
+
+      // Check if the sender has enough tokens to spend.
+      if (fromCurrentBalance < parseInt(amount)) {
+        throw new Error(`client account ${Owners[shares]} has insufficient funds.`);
+      }
+
+      // Subtract the amount from the sender.
+      const fromNewBalance = fromCurrentBalance - parseInt(amount);
+      await ctx.stub.putState(fromBalanceKey, Buffer.from(fromNewBalance.toString()));
+
+      tot+= parseInt(OwnerShares[shares]);
     }
-    //check escrow balance
 
+    const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
+    const toCurrentBalanceBytes = await ctx.stub.getState(toBalanceKey);
+    let toCurrentBalance = 0;
+    if (toCurrentBalanceBytes && toCurrentBalanceBytes.length > 0) {
+      toCurrentBalance = parseInt(toCurrentBalanceBytes.toString());
+    }
+    const toNewBalance = toCurrentBalance + tot;
+    await ctx.stub.putState(toBalanceKey, Buffer.from(toNewBalance.toString()));
     
-
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
     const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
     let orderList = [];
@@ -879,7 +882,7 @@ export class ScrowBazzarContract extends Contract {
     }
     return balanceBytes.toString();
   }
-  
+
 
   async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
 
@@ -913,7 +916,7 @@ export class ScrowBazzarContract extends Contract {
     const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [to]);
     const toCurrentBalanceBytes = await ctx.stub.getState(toBalanceKey);
 
-    let toCurrentBalance;
+    let toCurrentBalance: number;
     // If recipient current balance doesn't yet exist, we'll create it with a current balance of 0
     if (!toCurrentBalanceBytes || toCurrentBalanceBytes.length === 0) {
       toCurrentBalance = 0;
@@ -923,12 +926,14 @@ export class ScrowBazzarContract extends Contract {
 
     // Update the balance
     const fromUpdatedBalance = this.sub(fromCurrentBalance, valueInt);
+
     const toUpdatedBalance = this.add(toCurrentBalance, valueInt);
 
     await ctx.stub.putState(fromBalanceKey, Buffer.from(fromUpdatedBalance.toString()));
     console.log(`client ${from} balance updated from ${fromCurrentBalance} to ${fromUpdatedBalance}`);
     await ctx.stub.putState(toBalanceKey, Buffer.from(toUpdatedBalance.toString()));
     console.log(`recipient ${to} balance updated from ${toCurrentBalance} to ${toUpdatedBalance}`);
+
 
     return true;
   }
