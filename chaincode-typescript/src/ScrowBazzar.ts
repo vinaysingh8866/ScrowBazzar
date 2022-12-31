@@ -689,10 +689,6 @@ export class ScrowBazzarContract extends Contract {
 
     for (const shares in OwnerShares) {
       //transfer money to escrow
-      const transferResp = await this.Transfer(ctx, Owners[shares], escrowKey, OwnerShares[shares]);
-      if (!transferResp) {
-        throw new Error(`Failed to transfer money to escrow`);
-      }
       const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [Owners[shares]]);
       const fromCurrentBalanceBytes = await ctx.stub.getState(fromBalanceKey);
 
@@ -703,12 +699,12 @@ export class ScrowBazzarContract extends Contract {
       const fromCurrentBalance = parseInt(fromCurrentBalanceBytes.toString());
 
       // Check if the sender has enough tokens to spend.
-      if (fromCurrentBalance < parseInt(amount)) {
+      if (fromCurrentBalance < parseInt(OwnerShares[shares])) {
         throw new Error(`client account ${Owners[shares]} has insufficient funds.`);
       }
 
       // Subtract the amount from the sender.
-      const fromNewBalance = fromCurrentBalance - parseInt(amount);
+      const fromNewBalance = fromCurrentBalance - parseInt(OwnerShares[shares]);
       await ctx.stub.putState(fromBalanceKey, Buffer.from(fromNewBalance.toString()));
 
       tot+= parseInt(OwnerShares[shares]);
@@ -721,6 +717,7 @@ export class ScrowBazzarContract extends Contract {
       toCurrentBalance = parseInt(toCurrentBalanceBytes.toString());
     }
     const toNewBalance = toCurrentBalance + tot;
+
     await ctx.stub.putState(toBalanceKey, Buffer.from(toNewBalance.toString()));
     
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
