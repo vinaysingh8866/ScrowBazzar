@@ -692,6 +692,25 @@ export class ScrowBazzarContract extends Contract {
     //   }
     // }
 
+    for (const owner in Owners) {
+      const buyerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [Owners[owner]]);
+      const buyerOrderListBytes = await ctx.stub.getState(buyerOrderListKey);
+      let orderList = [];
+      if (!buyerOrderListBytes || buyerOrderListBytes.length === 0) {
+        orderList = [];
+      }
+      else {
+        orderList = JSON.parse(buyerOrderListBytes.toString());
+      }
+      orderList.push(id);
+      await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
+      //transfer money to escrow
+      const transferResp = await this.Transfer(ctx, Owners[owner], escrowKey, OwnerShares[owner]);
+      if (!transferResp) {
+        throw new Error(`Failed to transfer money to escrow`);
+      }
+    }
+
     
 
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
