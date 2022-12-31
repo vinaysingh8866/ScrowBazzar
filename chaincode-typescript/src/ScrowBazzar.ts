@@ -704,11 +704,20 @@ export class ScrowBazzarContract extends Contract {
       }
       orderList.push(id);
       await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
+    }
+
+    for (const shares in OwnerShares) {
       //transfer money to escrow
-      const transferResp = await this.Transfer(ctx, Owners[owner], escrowKey, OwnerShares[owner]);
+      const transferResp = await this.Transfer(ctx, Owners[shares], escrowKey, OwnerShares[shares]);
       if (!transferResp) {
         throw new Error(`Failed to transfer money to escrow`);
       }
+    }
+    //check escrow balance
+    const escrowBalance = await this.EscrowBalance(ctx);
+    if (escrowBalance < amount) {
+      //fix this by adding not transfered amount to escrow account
+
     }
 
     
@@ -919,9 +928,8 @@ export class ScrowBazzarContract extends Contract {
     const toUpdatedBalance = this.add(toCurrentBalance, valueInt);
 
     await ctx.stub.putState(fromBalanceKey, Buffer.from(fromUpdatedBalance.toString()));
-    await ctx.stub.putState(toBalanceKey, Buffer.from(toUpdatedBalance.toString()));
-
     console.log(`client ${from} balance updated from ${fromCurrentBalance} to ${fromUpdatedBalance}`);
+    await ctx.stub.putState(toBalanceKey, Buffer.from(toUpdatedBalance.toString()));
     console.log(`recipient ${to} balance updated from ${toCurrentBalance} to ${toUpdatedBalance}`);
 
     return true;
