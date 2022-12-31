@@ -83,6 +83,7 @@ const ProfileScreen = () => {
         const fileUri = result.assets[0].uri;
         console.log(fileUri);
         const response = await fetch(fileUri);
+        setImage(fileUri);
         console.log(response);
 
         const blob = await response.blob();
@@ -100,15 +101,16 @@ const ProfileScreen = () => {
             // console.log("Upload is " + progress + "% done");
             switch (snapshot.state) {
               case "paused":
-                console.log("Upload is paused");
+                
                 break;
               case "running":
-                console.log("Upload is running");
+                
                 break;
             }
           },
           (error) => {
             // Handle unsuccessful uploads
+
           },
           () => {
             // Handle successful uploads on complete
