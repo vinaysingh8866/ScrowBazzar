@@ -175,11 +175,62 @@ app.post("/complete_escrow", async (req: any, res: any) => {
     }
 });
 
-//  public async CreateCustomEscrowOrder(ctx: Context, id: string, seller: string, amount: string, buyers: string[], shares: string[], customTranfer: string[]): Promise<boolean> {
-// '{"function":"CreateCustomEscrowOrder","Args":["0001","hdsp","1000","[\"vinay\",\"vinay2\"]","[\"50\",\"50\"]","[\"vinay\",\"vinay2\"]"]}'
-
-
-
+//'{"function":"CreateCustomEscrowOrder","Args":["0002","hdsp","1000","userA,userB","500,500","100,0,0,900"]}'
+app.post("/create_custom_escrow_order", async (req: any, res: any) => {
+    const { orderid, seller, amount, buyers, shares, customTransfer } = req.body;
+    try {
+        const customval = await contract.submitTransaction('CreateCustomEscrowOrder', orderid, seller, amount, buyers, shares, customTransfer);
+        res.send(prettyJSONString(customval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+//'{"function":"ProcessCustomEscrowOrder","Args":["0002"]}'
+app.post("/process_custom_escrow_order", async (req: any, res: any) => {
+    const { orderid } = req.body;
+    try {
+        const processcustomval = await contract.submitTransaction('ProcessCustomEscrowOrder', orderid);
+        res.send(prettyJSONString(processcustomval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+//'{"function":"CompleteCustomEscrowOrder","Args":["0002"]}'
+app.post("/complete_custom_escrow_order", async (req: any, res: any) => {
+    const { orderid } = req.body;
+    try {
+        const completecustomval = await contract.submitTransaction('CompleteCustomEscrowOrder', orderid);
+        res.send(prettyJSONString(completecustomval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
+//'{"function":"AcceptOrderDelivery","Args":["0002"]}'
+app.post("/accept_order_delivery", async (req: any, res: any) => {
+    const { orderid } = req.body;
+    try {
+        const acceptval = await contract.submitTransaction('AcceptOrderDelivery', orderid);
+        res.send(prettyJSONString(acceptval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+            .status(500)
+            .send(err);
+    }
+});
 
 // start the Express server
 app.listen(port, () => {
