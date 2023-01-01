@@ -13,12 +13,13 @@ import {
   VStack,
 } from "native-base";
 import { background } from "native-base/lib/typescript/theme/styled-system";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { SafeAreaView, TouchableOpacity } from "react-native";
 import db from "../firebase";
 import { uuidv4 } from "../pages/ProfileScreen";
 import { getValueFor } from "../utils/Storage";
 import AppButton from "./AppButton";
+import AppInput from "./AppInput";
 import AppSubtitle from "./AppSubtitile";
 import AppTitle from "./AppTitle";
 import AppTitleBar from "./AppTitleBar";
@@ -122,6 +123,93 @@ const CompleteOrder = ({
 };
 const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   const [numberOfItems, setNumberOfItems] = useState(1);
+  const [partnerParty, setPartnerParty] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
+  const [share, setShare] = useState("0");
+  const [approvalAmount, setApprovalAmount] = useState("0");
+  const [processAmount, setProcessAmount] = useState("0");
+  const [deliveryAmount, setDeliveryAmount] = useState("0");
+  async function createCustomEscrow() {
+    const id = (await uuidv4()).toString();
+    let email = await getValueFor("email");
+
+    email = email.replace(".", "_");
+    const buyerRef = ref(db, "users/" + email + "/info");
+    const buyerInfo = await get(buyerRef);
+    const buyerBalance = buyerInfo.val().balance;
+    const sellerMail = modelService.email.replace(".", "_");
+    const userRef = ref(db, "users/" + email + "/orders");
+    const sellerRef = ref(db, "users/" + sellerMail + "/orders");
+
+    if (buyerBalance < numberOfItems * modelService.price) {
+      alert("Insufficient Balance");
+      return;
+    }
+
+    const dataRes = await fetch(
+      "http://157.230.188.72:8080/create_custom_escrow_order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderid: id,
+          amount: numberOfItems * modelService.price,
+          seller: sellerMail,
+          buyers: "userA,userB",
+          shares: "500,500",
+          customTransfer: "100,0,0,900",
+        }),
+      }
+    );
+    //console.log(dataRes);
+  }
+
+  async function customTransfer() {
+    const id = (await uuidv4()).toString();
+    let email = await getValueFor("email");
+    let partyEmail = partnerParty.replace(".", "_");
+    email = email.replace(".", "_");
+    const buyerRef = ref(db, "users/" + email + "/info");
+    const buyerInfo = await get(buyerRef);
+    const buyerBalance = buyerInfo.val().balance;
+    const sellerMail = modelService.email.replace(".", "_");
+    const userRef = ref(db, "users/" + email + "/orders");
+    const sellerRef = ref(db, "users/" + sellerMail + "/orders");
+    const partyRef = ref(db, "users/" + partyEmail + "/orders");
+    if (buyerBalance < numberOfItems * modelService.price) {
+      alert("Insufficient Balance");
+      return;
+    }
+    const order = {
+      orderId: id,
+      nameOfService: modelService.nameOfService,
+      price: modelService.price,
+      description: modelService.description,
+      image: modelService.image,
+      numberOfItems: numberOfItems,
+      total: numberOfItems * modelService.price,
+      sellerEmail: sellerMail,
+      buyersEmail: [email, partyEmail],
+      shares: [numberOfItems * modelService.price - parseInt(share), share],
+      status: "Awaiting Agreement",
+      customTransfer: [
+        approvalAmount,
+        processAmount,
+        deliveryAmount,
+        numberOfItems * modelService.price -
+          (parseInt(approvalAmount) +
+            parseInt(processAmount) +
+            parseInt(deliveryAmount)),
+      ],
+      customEscrow: true,
+    };
+
+    await push(userRef, order);
+    await push(sellerRef, order);
+    await push(partyRef, order);
+  }
 
   async function orderService() {
     const id = (await uuidv4()).toString();
@@ -134,6 +222,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
     const sellerMail = modelService.email.replace(".", "_");
     const userRef = ref(db, "users/" + email + "/orders");
     const sellerRef = ref(db, "users/" + sellerMail + "/orders");
+
     if (buyerBalance < numberOfItems * modelService.price) {
       alert("Insufficient Balance");
       return;
@@ -151,7 +240,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
         seller: sellerMail,
       }),
     });
-    console.log(dataRes);
+    //console.log(dataRes);
 
     const order = {
       orderId: id,
@@ -186,7 +275,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
         <VStack bgColor={"#09151E"} w="100%" h="100%" pt="4">
           <CompleteOrder
             onPress={() => {
-              orderService();
+              isCustom ? customTransfer() : orderService();
               setOpen(false);
             }}
             numberOfItems={numberOfItems}
@@ -213,39 +302,108 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                     ></QuantityButtons>
                   </ServiceListComponent>
                 </VStack>
-                <VStack mx="auto" w="100%" rounded={"lg"}>
-                  <VStack
-                    mx="auto"
-                    mt="4"
-                    w="100%"
-                    rounded={"lg"}
-                    bg="#12202E"
-                    p="4"
-                  >
-                    <Text color="white">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation{" "}
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt {"\n"}
-                      {"\n"}Labore et dolore magna aliqua. Ut enim ad minim
-                      veniam, quis nostrud exercitation Lorem ipsum dolor sit
-                      amet, consectetur adipiscing elit, sed do eiusmod tempor
-                      incididunt ut labore et dolore magna aliqua. Ut enim ad
-                      minim veniam, quis nostrud exercitation{"\n"}
-                      {"\n"} Lorem ipsum dolor sit amet, consectetur adipiscing
-                      elit, sed do eiusmod tempor incididunt ut labore et dolore
-                      magna aliqua. Ut enim ad minim veniam, quis nostrud
-                      exercitation Lorem ipsum dolor sit amet, consectetur
-                      adipiscing elit, sed do eiusmod tempor incididunt ut
-                      labore et dolore magna aliqua. Ut enim ad minim veniam,
-                      quis nostrud exercitation
-                    </Text>
+                {!isCustom && (
+                  <VStack mx="auto" w="100%" rounded={"lg"}>
+                    <AppButton onPress={() => setIsCustom(true)}>
+                      <Text color="white">Add Parties</Text>
+                    </AppButton>
                   </VStack>
-                </VStack>
+                )}
+                {isCustom && (
+                  <VStack mx="auto" w="100%" rounded={"lg"}>
+                    <VStack
+                      mx="auto"
+                      mt="4"
+                      w="100%"
+                      rounded={"lg"}
+                      bg="#12202E"
+                      p="4"
+                    >
+                      <Stack w="100%" h="12">
+                        <AppInput
+                          placeholder="Enter Party Email"
+                          onChangeText={(text: SetStateAction<string>) =>
+                            setPartnerParty(text.toString().toLocaleLowerCase())
+                          }
+                          width={"100%"}
+                          keyboardType={undefined}
+                          maxLength={1000}
+                          value={partnerParty}
+                          isFocused={false}
+                          secondary={false}
+                        />
+                      </Stack>
+                      <HStack w="100%" h="12">
+                        <Text color="white" my="auto">
+                          Share
+                        </Text>
+                        <AppInput
+                          placeholder="Enter Share Percentage"
+                          onChangeText={(text: SetStateAction<string>) =>
+                            setShare(text)
+                          }
+                          width={"70%"}
+                          keyboardType={undefined}
+                          maxLength={1000}
+                          value={share}
+                          isFocused={false}
+                          secondary={false}
+                        />
+                      </HStack>
+                      <HStack w="100%" h="12">
+                        <Text color="white" my="auto">
+                          Approval
+                        </Text>
+                        <AppInput
+                          placeholder="Amount to Send On Approval"
+                          onChangeText={(text: SetStateAction<string>) =>
+                            setApprovalAmount(text)
+                          }
+                          width={"70%"}
+                          keyboardType={undefined}
+                          maxLength={1000}
+                          value={approvalAmount}
+                          isFocused={false}
+                          secondary={false}
+                        />
+                      </HStack>
+                      <HStack w="100%" h="12">
+                        <Text color="white" my="auto">
+                          Processed
+                        </Text>
+                        <AppInput
+                          placeholder="Amount to Send On Processing"
+                          onChangeText={(text: SetStateAction<string>) =>
+                            setProcessAmount(text)
+                          }
+                          width={"70%"}
+                          keyboardType={undefined}
+                          maxLength={1000}
+                          value={processAmount}
+                          isFocused={false}
+                          secondary={false}
+                        />
+                      </HStack>
+                      <HStack w="100%" h="12">
+                        <Text color="white" my="auto">
+                          Delivery
+                        </Text>
+                        <AppInput
+                          placeholder="Amount to Send On Processing"
+                          onChangeText={(text: SetStateAction<string>) =>
+                            setDeliveryAmount(text)
+                          }
+                          width={"70%"}
+                          keyboardType={undefined}
+                          maxLength={1000}
+                          value={deliveryAmount}
+                          isFocused={false}
+                          secondary={false}
+                        />
+                      </HStack>
+                    </VStack>
+                  </VStack>
+                )}
               </VStack>
             </ScrollView>
           </SafeAreaView>

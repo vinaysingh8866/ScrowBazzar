@@ -28,7 +28,7 @@ const WalletScreen = () => {
       userRef,
       (snapshot) => {
         const data = snapshot.val();
-        console.log(data);
+        //console.log(data);
         if (data) {
           setBalance(data.balance);
         }

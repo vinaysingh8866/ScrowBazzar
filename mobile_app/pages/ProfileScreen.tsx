@@ -81,10 +81,10 @@ const ProfileScreen = () => {
       });
       if (result.assets !== null) {
         const fileUri = result.assets[0].uri;
-        console.log(fileUri);
+        //console.log(fileUri);
         const response = await fetch(fileUri);
         setImage(fileUri);
-        console.log(response);
+        //console.log(response);
 
         const blob = await response.blob();
         const storage = getStorage(app);
@@ -116,7 +116,7 @@ const ProfileScreen = () => {
             // Handle successful uploads on complete
             // For instance, get the download URL: https://firebasestorage.googleapis.com/...
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              console.log("File available at", downloadURL);
+              //("File available at", downloadURL);
               setImage(downloadURL);
             });
           }

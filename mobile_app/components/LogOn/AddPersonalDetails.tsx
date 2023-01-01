@@ -33,8 +33,8 @@ const AddPersonalDetails = ({ setState, state }: any) => {
     await save("name", user.name);
     //add user email to app storage
     await save("email", user.email);
-    console.log("DONE");
-    console.log(res);
+    //console.log("DONE");
+    //console.log(res);
   }
   return (
     <Animated.View entering={SlideInRight} exiting={SlideOutLeft}>

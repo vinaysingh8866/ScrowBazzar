@@ -20,7 +20,7 @@ export async function getBalanceFromContract() {
     const b = await get(userRef);
     const balanceValue = b.val().balance;
     if (balance.status === 200) {
-        console.log(balance);
+       // console.log(balance);
         const bValue = await balance.json();
         if (bValue.balance !== balanceValue) {
             bal = bValue.balance;

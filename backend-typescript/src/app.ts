@@ -189,6 +189,25 @@ app.post("/create_custom_escrow_order", async (req: any, res: any) => {
             .send(err);
     }
 });
+
+//'{"function":"ApproveCustomEscrowOrder","Args":["0002"]}'
+app.post("/approve_custom_escrow_order", async (req: any, res: any) => {
+    const { orderid } = req.body;
+    try {
+        const approvecustomval = await contract.submitTransaction('ApproveCustomEscrowOrder', orderid);
+        res.send(prettyJSONString(approvecustomval.toString()));
+    }
+    catch (err) {
+        console.log(err);
+        res
+
+            .status(500)
+            .send(err);
+    }
+});
+
+
+
 //'{"function":"ProcessCustomEscrowOrder","Args":["0002"]}'
 app.post("/process_custom_escrow_order", async (req: any, res: any) => {
     const { orderid } = req.body;
