@@ -82,13 +82,13 @@ const OrderScreen = () => {
               {myOrders.map((order, i) => {
                 return (
                   <Stack key={i}>
-                    {order.sellerEmail === email && order.buyersEmail==undefined &&(
-                      <SellerOrdersScreen order={order} />
-                    )}
-                    {order.buyersEmail != undefined &&
+                    {order.sellerEmail === email &&
+                      order.buyersEmail == undefined && (
+                        <SellerOrdersScreen order={order} />
+                      )}
+                    {order.buyersEmail != undefined && (
                       <CustomSellerOrdersScreen order={order} />
-                    }
-
+                    )}
                   </Stack>
                 );
               })}
@@ -343,15 +343,18 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
   async function updateOrderStatus(orderId: string, status: string) {
     setLoading(true);
     if (status === "Approved") {
-      const approve = await fetch("http://157.230.188.72:8080/approve_custom_escrow_order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderid: orderId,
-        }),
-      });
+      const approve = await fetch(
+        "http://157.230.188.72:8080/approve_custom_escrow_order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderid: orderId,
+          }),
+        }
+      );
       const sellerEmail = order.sellerEmail.replace(".", "_");
       //change seller balance
       const sellerRef = ref(db, "users/" + sellerEmail + "/info");
@@ -364,20 +367,21 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
         balance: newBalance,
       });
 
-
-
       //console.log(approve);
     }
     if (status === "Processing") {
-      const process = await fetch("http://157.230.188.72:8080/process_custom_escrow_order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderid: orderId,
-        }),
-      });
+      const process = await fetch(
+        "http://157.230.188.72:8080/process_custom_escrow_order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderid: orderId,
+          }),
+        }
+      );
       const sellerEmail = order.sellerEmail.replace(".", "_");
       const sellerRef = ref(db, "users/" + sellerEmail + "/info");
       const seller = await get(sellerRef);
@@ -391,15 +395,18 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
       //console.log(process);
     }
     if (status === "Completed") {
-      const deliver = await fetch("http://157.230.188.72:8080/complete_custom_escrow_order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderid: orderId,
-        }),
-      });
+      const deliver = await fetch(
+        "http://157.230.188.72:8080/complete_custom_escrow_order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderid: orderId,
+          }),
+        }
+      );
       const sellerEmail = order.sellerEmail.replace(".", "_");
       const sellerRef = ref(db, "users/" + sellerEmail + "/info");
       const seller = await get(sellerRef);
@@ -412,7 +419,7 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
       });
       //console.log(deliver);
     }
-    
+
     // const buyerEmail = order.buyerEmail.replace(".", "_");
     // const buyerOrdersRef = ref(db, "users/" + buyerEmail + "/orders");
     // const buyerOrders = await get(buyerOrdersRef);
@@ -439,7 +446,7 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
     //set buyers order status
     const buyer1 = order.buyersEmail[0].replace(".", "_");
     const buyer2 = order.buyersEmail[1].replace(".", "_");
-    
+
     const buyer1OrdersRef = ref(db, "users/" + buyer1 + "/orders");
     const buyer1Orders = await get(buyer1OrdersRef);
     const buyer1OrdersData = buyer1Orders.val();
@@ -777,97 +784,102 @@ const CustomBuyerOrdersScreen = ({ order }: any) => {
 
   async function agreeOrder() {
     setLoading(true);
-    
-    let buyersVal = order.buyersEmail
-    const textBuyers = buyersVal.join(",")
-    const shares = order.shares
-    const sharesText = shares.join(",")
-    const customEs = order.customTransfer
-    const customEsText = customEs.join(",")
-    const process = await fetch("http://157.230.188.72:8080/create_custom_escrow_order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        orderid: order.orderId,
-        seller: order.sellerEmail,
-        amount: order.total,
-        buyers: textBuyers,
-        shares: sharesText,
-        customTransfer: customEsText,
-    })
-  })
-  console.log(sharesText, customEsText)
-  console.log(process)
-  const buyer1 = buyersVal[0].replace(".", "_");
-  const buyer2 = buyersVal[1].replace(".", "_");
-  const sellerEmail = order.sellerEmail.replace(".", "_");
-  const buyer1OrdersRef = ref(db, "users/" + buyer1 + "/orders");
-  const buyer2OrdersRef = ref(db, "users/" + buyer2 + "/orders");
-  const sellerOrdersRef = ref(db, "users/" + sellerEmail + "/orders");
-  const buyer1Orders = await get(buyer1OrdersRef);
-  const buyer2Orders = await get(buyer2OrdersRef);
-  const sellerOrders = await get(sellerOrdersRef);
-  const buyer1OrdersData = buyer1Orders.val();
-  const buyer2OrdersData = buyer2Orders.val();
-  const sellerOrdersData = sellerOrders.val();
-  for (let key in buyer1OrdersData) {
-    if (buyer1OrdersData[key].orderId === order.orderId) {
-      update(ref(db, "users/" + buyer1 + "/orders/" + key), {
-        status: "Pending",
-      });
-    }
-  }
-  for (let key in buyer2OrdersData) {
-    if (buyer2OrdersData[key].orderId === order.orderId) {
-      update(ref(db, "users/" + buyer2 + "/orders/" + key), {
-        status: "Pending",
-      });
-    }
-  }
-  for (let key in sellerOrdersData) {
-    if (sellerOrdersData[key].orderId === order.orderId) {
-      update(ref(db, "users/" + sellerEmail + "/orders/" + key), {
-        status: "Pending",
-      });
-    }
-  }
-  //change balance of buyers 
-  const buyer1BalanceRef = ref(db, "users/" + buyer1 + "/info/balance");
-  const buyer2BalanceRef = ref(db, "users/" + buyer2 + "/info/balance");
-  const buyer1Balance = await get(buyer1BalanceRef);
-  const buyer2Balance = await get(buyer2BalanceRef);
-  const buyer1BalanceData = buyer1Balance.val();
-  const buyer2BalanceData = buyer2Balance.val();
-  const buyer1NewBalance = buyer1BalanceData - order.shares[0];
-  const buyer2NewBalance = buyer2BalanceData - order.shares[1];
-  update(ref(db, "users/" + buyer1 + "/info"), {
-    balance: buyer1NewBalance,
-  });
-  update(ref(db, "users/" + buyer2 + "/info"), {
-    balance: buyer2NewBalance,
-  });
-  
 
-  setLoading(false);
-}
+    let buyersVal = order.buyersEmail;
+    const textBuyers = buyersVal.join(",");
+    const shares = order.shares;
+    const sharesText = shares.join(",");
+    const customEs = order.customTransfer;
+    const customEsText = customEs.join(",");
+    const process = await fetch(
+      "http://157.230.188.72:8080/create_custom_escrow_order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderid: order.orderId,
+          seller: order.sellerEmail,
+          amount: order.total,
+          buyers: textBuyers,
+          shares: sharesText,
+          customTransfer: customEsText,
+        }),
+      }
+    );
+    console.log(sharesText, customEsText);
+    console.log(process);
+    const buyer1 = buyersVal[0].replace(".", "_");
+    const buyer2 = buyersVal[1].replace(".", "_");
+    const sellerEmail = order.sellerEmail.replace(".", "_");
+    const buyer1OrdersRef = ref(db, "users/" + buyer1 + "/orders");
+    const buyer2OrdersRef = ref(db, "users/" + buyer2 + "/orders");
+    const sellerOrdersRef = ref(db, "users/" + sellerEmail + "/orders");
+    const buyer1Orders = await get(buyer1OrdersRef);
+    const buyer2Orders = await get(buyer2OrdersRef);
+    const sellerOrders = await get(sellerOrdersRef);
+    const buyer1OrdersData = buyer1Orders.val();
+    const buyer2OrdersData = buyer2Orders.val();
+    const sellerOrdersData = sellerOrders.val();
+    for (let key in buyer1OrdersData) {
+      if (buyer1OrdersData[key].orderId === order.orderId) {
+        update(ref(db, "users/" + buyer1 + "/orders/" + key), {
+          status: "Pending",
+        });
+      }
+    }
+    for (let key in buyer2OrdersData) {
+      if (buyer2OrdersData[key].orderId === order.orderId) {
+        update(ref(db, "users/" + buyer2 + "/orders/" + key), {
+          status: "Pending",
+        });
+      }
+    }
+    for (let key in sellerOrdersData) {
+      if (sellerOrdersData[key].orderId === order.orderId) {
+        update(ref(db, "users/" + sellerEmail + "/orders/" + key), {
+          status: "Pending",
+        });
+      }
+    }
+    //change balance of buyers
+    const buyer1BalanceRef = ref(db, "users/" + buyer1 + "/info/balance");
+    const buyer2BalanceRef = ref(db, "users/" + buyer2 + "/info/balance");
+    const buyer1Balance = await get(buyer1BalanceRef);
+    const buyer2Balance = await get(buyer2BalanceRef);
+    const buyer1BalanceData = buyer1Balance.val();
+    const buyer2BalanceData = buyer2Balance.val();
+    const buyer1NewBalance = buyer1BalanceData - order.shares[0];
+    const buyer2NewBalance = buyer2BalanceData - order.shares[1];
+    update(ref(db, "users/" + buyer1 + "/info"), {
+      balance: buyer1NewBalance,
+    });
+    update(ref(db, "users/" + buyer2 + "/info"), {
+      balance: buyer2NewBalance,
+    });
 
-useEffect(() => {}, [loading, isAgreer, order]);
+    setLoading(false);
+  }
+
+  useEffect(() => {}, [loading, isAgreer, order]);
   async function updateOrderStatus(orderId: string, status: string) {
     setLoading(true);
-    const process = await fetch("http://157.230.188.72:8080/accept_order_delivery", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        orderid: orderId,
-      }),
-    })
+    const process = await fetch(
+      "http://157.230.188.72:8080/accept_order_delivery",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderid: orderId,
+        }),
+      }
+    );
     //(process)
-    //set buyers status 
-    let buyersVal = order.buyersEmail
+    //set buyers status
+    let buyersVal = order.buyersEmail;
     const buyer1 = buyersVal[0].replace(".", "_");
     const buyer2 = buyersVal[1].replace(".", "_");
     const buyer1OrdersRef = ref(db, "users/" + buyer1 + "/orders");
@@ -934,36 +946,70 @@ useEffect(() => {}, [loading, isAgreer, order]);
         category={"Quantity: " + order.numberOfItems.toString()}
         price={order.total}
       >
+        <VStack>
+        <Text color="white">Share: {order.shares}</Text>
         {order.status === "Completed" ? (
           loading ? (
             <Spinner size="lg" mx="auto" color="#D9F1FF" />
           ) : (
-            <AppButton
-              secondary
-              onPress={() => {
-                updateOrderStatus(order.orderId, "EscrowCompleted");
-              }}
-              width={"100%"}
-            >
-              <Text color="white">Complete Escrow</Text>
-            </AppButton>
+            <Stack>
+              <AppButton
+                secondary
+                onPress={() => {
+                  updateOrderStatus(order.orderId, "EscrowCompleted");
+                }}
+                width={"100%"}
+              >
+                <Text color="white">Complete Escrow</Text>
+              </AppButton>
+              <HStack space="2">
+                <Text color="white">Partner</Text>
+                <Text color="white">
+                  {isAgreer
+                    ? order.buyersEmail[1].replace("_", ".")
+                    : order.buyersEmail[0].replace("_", ".")}
+                </Text>
+              </HStack>
+            </Stack>
           )
         ) : (
           <>
-            {isAgreer && order.status === "Awaiting Agreement"
-             ? (
-              <AppButton secondary onPress={() => {
-                agreeOrder();
-              }} width={"100%"}>
-                <Text color="white">Agree</Text>
-              </AppButton>
+            {isAgreer && order.status === "Awaiting Agreement" ? (
+              <Stack>
+                <AppButton
+                  secondary
+                  onPress={() => {
+                    agreeOrder();
+                  }}
+                  width={"100%"}
+                >
+                  <Text color="white">Agree</Text>
+                </AppButton>
+                <HStack space="2">
+                  <Text color="white"> Partner</Text>
+                  <Text color="white">
+                    {isAgreer
+                      ? order.buyersEmail[1].replace("_", ".")
+                      : order.buyersEmail[0].replace("_", ".")}
+                  </Text>
+                </HStack>
+              </Stack>
             ) : (
-              
+              <Stack>
                 <Text color="white">{order.status}</Text>
-              
+                <HStack space="2">
+                  <Text color="white"> Partner</Text>
+                  <Text color="white">
+                    {isAgreer
+                      ? order.buyersEmail[1].replace("_", ".")
+                      : order.buyersEmail[0].replace("_", ".")}
+                  </Text>
+                </HStack>
+              </Stack>
             )}
           </>
         )}
+        </VStack>
       </ServiceListComponent>
     </VStack>
     // <VStack bg="#12202E" my="3" p="4" rounded={"md"}>
