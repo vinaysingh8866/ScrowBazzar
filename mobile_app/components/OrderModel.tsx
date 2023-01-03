@@ -226,30 +226,6 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   const [processAmount, setProcessAmount] = useState("0");
   const [deliveryAmount, setDeliveryAmount] = useState("0");
 
-  // useEffect(() => {
-  //   setMaxApprove(
-  //     Math.round(
-  //       (modelService.price * numberOfItems -
-  //         (parseInt(deliveryAmount) + parseInt(processAmount))) /
-  //         (modelService.price * numberOfItems)
-  //     ) * 100
-  //   );
-  //   setMaxProcess(
-  //     Math.round(
-  //       (modelService.price * numberOfItems -
-  //         (parseInt(deliveryAmount) + parseInt(approvalAmount))) /
-  //         (modelService.price * numberOfItems)
-  //     ) * 100
-  //   );
-  //   setMaxDelivery(
-  //     Math.round(
-  //       (modelService.price * numberOfItems -
-  //         (parseInt(approvalAmount) + parseInt(processAmount))) /
-  //         (modelService.price * numberOfItems)
-  //     ) * 100
-  //   );
-  //   console.log(maxApprove, maxProcess, maxDelivery);
-  // }, [approvalAmount, processAmount, deliveryAmount]);
   async function createCustomEscrow() {
     const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
@@ -333,7 +309,6 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   }
 
   async function orderService() {
-    const [share, setShare] = useState("599");
     const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
 
@@ -640,57 +615,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                           </Text>
                         </VStack>
                       </HStack>
-                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
-                        <Text color="white" my="auto">
-                          Approval
-                        </Text>
-                        <AppInput
-                          placeholder="Amount to Send On Approval"
-                          onChangeText={(text: SetStateAction<string>) =>
-                            setApprovalAmount(text)
-                          }
-                          width={"70%"}
-                          keyboardType={undefined}
-                          maxLength={1000}
-                          value={approvalAmount}
-                          isFocused={false}
-                          secondary={true}
-                        />
-                      </HStack> */}
-                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
-                        <Text color="white" my="auto">
-                          Processed
-                        </Text>
-                        <AppInput
-                          placeholder="Amount to Send On Processing"
-                          onChangeText={(text: SetStateAction<string>) =>
-                            setProcessAmount(text)
-                          }
-                          width={"70%"}
-                          keyboardType={undefined}
-                          maxLength={1000}
-                          value={processAmount}
-                          isFocused={false}
-                          secondary={true}
-                        />
-                      </HStack> */}
-                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
-                        <Text color="white" my="auto">
-                          Delivery
-                        </Text>
-                        <AppInput
-                          placeholder="Amount to Send On Processing"
-                          onChangeText={(text: SetStateAction<string>) =>
-                            setDeliveryAmount(text)
-                          }
-                          width={"70%"}
-                          keyboardType={undefined}
-                          maxLength={1000}
-                          value={deliveryAmount}
-                          isFocused={false}
-                          secondary={true}
-                        />
-                      </HStack> */}
+
                     </VStack>
                   </VStack>
                 )}

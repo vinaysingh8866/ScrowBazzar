@@ -15,7 +15,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import WalletScreen from "./pages/WalletScreen";
 import { deleteValueFor, getValueFor } from "./utils/Storage";
 import ProfileScreen, { uuidv4 } from "./pages/ProfileScreen";
-import OrderScreen from "./pages/OdersScreen";
+import OrderScreen from "./pages/Order/OdersScreen";
 import HomeScreen from "./pages/HomeScreen";
 const Tab = createBottomTabNavigator();
 //deleteValueFor("name");
