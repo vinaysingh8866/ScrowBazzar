@@ -62,7 +62,7 @@ const OrderScreen = () => {
           option2="Received"
         >
           {toggle ? (
-            <ScrollView>
+            <ScrollView h="85%" bg="#09151E">
               {myOrders.map((order, i) => {
                 return (
                   <Stack key={i}>
@@ -78,7 +78,7 @@ const OrderScreen = () => {
               })}
             </ScrollView>
           ) : (
-            <ScrollView>
+            <ScrollView h="85%" bg="#09151E">
               {myOrders.map((order, i) => {
                 return (
                   <Stack key={i}>
@@ -527,6 +527,7 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
               {loading ? (
                 <Spinner size="lg" mx="auto" color="#D9F1FF" />
               ) : order.status !== "EscrowCompleted" &&
+                order.status !== "Awaiting Agreement" &&
                 order.status !== "Completed" ? (
                 <AppButton
                   onPress={() => {
@@ -562,6 +563,8 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
                 >
                   {order.status === "EscrowCompleted"
                     ? "Finished"
+                    : order.status === "Awaiting Agreement"
+                    ? "Upcoming Order"
                     : "Escrow Pending"}
                 </Text>
               )}
@@ -617,7 +620,11 @@ const CustomSellerOrdersScreen = ({ order }: any) => {
                   )}
 
                   <Text mx="8" color="white" fontSize="14">
-                    {s === "EscrowCompleted" ? "Transfer Done" : s}
+                    {s === "EscrowCompleted"
+                      ? "Transfer Done"
+                      : s === "Awating Agreement"
+                      ? "Agreement"
+                      : s}
                   </Text>
                 </HStack>
                 {i !== states.length - 1 && (
@@ -781,6 +788,7 @@ const BuyerOrdersScreen = ({ order }: any) => {
 const CustomBuyerOrdersScreen = ({ order }: any) => {
   const [loading, setLoading] = useState(false);
   const [isAgreer, setIsAgreer] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   async function agreeOrder() {
     setLoading(true);
@@ -939,100 +947,293 @@ const CustomBuyerOrdersScreen = ({ order }: any) => {
   }, []);
 
   return (
-    <VStack bg="#09151E">
-      <ServiceListComponent
-        image={order.image}
-        name={order.nameOfService}
-        category={"Quantity: " + order.numberOfItems.toString()}
-        price={order.total}
-      >
-        <VStack>
-        <Text color="white">Share: {order.shares}</Text>
-        {order.status === "Completed" ? (
-          loading ? (
-            <Spinner size="lg" mx="auto" color="#D9F1FF" />
-          ) : (
-            <Stack>
-              <AppButton
-                secondary
-                onPress={() => {
-                  updateOrderStatus(order.orderId, "EscrowCompleted");
-                }}
-                width={"100%"}
-              >
-                <Text color="white">Complete Escrow</Text>
-              </AppButton>
-              <HStack space="2">
-                <Text color="white">Partner</Text>
-                <Text color="white">
-                  {isAgreer
-                    ? order.buyersEmail[1].replace("_", ".")
-                    : order.buyersEmail[0].replace("_", ".")}
+    <>
+      <VStack bg="#09151E">
+        <HStack w="100%" h="200px" rounded="2xl" mt="4">
+          <VStack
+            w="50%"
+            bgColor="#1A3147"
+            overflow={"hidden"}
+            rounded={"2xl"}
+            roundedRight="none"
+            roundedBottomLeft={showDetails ? "none" : "2xl"}
+          >
+            <Image
+              src={order.image}
+              alt="image"
+              h="200px"
+              w="200px"
+              rounded={"2xl"}
+              roundedRight="none"
+            />
+          </VStack>
+          <VStack w="50%">
+            <VStack
+              mx="auto"
+              w="100%"
+              p="4"
+              height={"80%"}
+              roundedTopRight={"2xl"}
+              justifyContent={"space-between"}
+              bg="#12202E"
+            >
+              <VStack w="100%">
+                <Text color="white" fontWeight={"black"} fontSize={18}>
+                  {order.nameOfService}
                 </Text>
+                <Text color="#D9F1FF" fontWeight={"400"} fontSize={15}>
+                  Quantity: {order.numberOfItems}
+                </Text>
+                <Text color="white" fontWeight={"bold"}>
+                  ₹{order.total}
+                </Text>
+              </VStack>
+              <VStack>
+                {order.status === "Completed" ? (
+                  loading ? (
+                    <Spinner size="lg" mx="auto" color="#D9F1FF" />
+                  ) : (
+                    <Stack>
+                      <AppButton
+                        secondary
+                        onPress={() => {
+                          updateOrderStatus(order.orderId, "EscrowCompleted");
+                        }}
+                        width={"100%"}
+                      >
+                        <Text color="white">Complete Escrow</Text>
+                      </AppButton>
+                    </Stack>
+                  )
+                ) : (
+                  <>
+                    {isAgreer && order.status === "Awaiting Agreement" ? (
+                      <Stack>
+                        <HStack h="50px">
+                          <AppButton
+                            secondary={false}
+                            onPress={() => {
+                              agreeOrder();
+                            }}
+                            width={"100%"}
+                          >
+                            <Text color="white">Agree</Text>
+                          </AppButton>
+                        </HStack>
+                      </Stack>
+                    ) : (
+                      <Stack>
+                        <Text
+                          color={"#E4FF41"}
+                          fontFamily={"Poppins_800Regular"}
+                          mx="auto"
+                          alignSelf={"center"}
+                          fontSize={
+                            order.status === "EscrowCompleted" ? "2xl" : "2xl"
+                          }
+                          fontWeight="bold"
+                        >
+                          {order.status === "EscrowCompleted"
+                            ? "Finished"
+                            : order.status}
+                        </Text>
+                      </Stack>
+                    )}
+                  </>
+                )}
+              </VStack>
+            </VStack>
+            <HStack
+              w="100%"
+              h="20%"
+              alignSelf="center"
+              bg="#193F60"
+              roundedBottomRight={showDetails ? "none" : "2xl"}
+            >
+              <Button
+                w="100%"
+                h="100%"
+                variant={"ghost"}
+                onPress={() => setShowDetails(!showDetails)}
+              >
+                <FontAwesome
+                  name={showDetails ? "chevron-up" : "chevron-down"}
+                  size={15}
+                  color="#D9F1FF"
+                />
+              </Button>
+            </HStack>
+          </VStack>
+        </HStack>
+        {showDetails && (
+          <VStack
+            w="100%"
+            bg="#12202E"
+            alignSelf={"center"}
+            roundedBottom="2xl"
+            p="2"
+          >
+            <VStack
+              w="100%"
+              mx="auto"
+              my="2"
+              justifyContent={"space-between"}
+              mt="4"
+            >
+              <Text color={"#D9F1FF"} textAlign="center">
+                Partner:
+              </Text>
+              <Text color={"#D9F1FF"} textAlign="center" fontWeight={"bold"}>
+                {isAgreer
+                  ? order.buyersEmail[1].replace("_", ".")
+                  : order.buyersEmail[0].replace("_", ".")}
+              </Text>
+              <HStack
+                w="100%"
+                h="40px"
+                mx="auto"
+                my="2"
+                justifyContent={"space-between"}
+              >
+                <VStack w="25%" h="40px" justifyContent={"flex-start"}>
+                  <Text
+                    color={"#D9F1FF"}
+                    textAlign="center"
+                    fontWeight={"bold"}
+                  >
+                    ₹{order.shares[1]}
+                  </Text>
+                  <Text color={"#D9F1FF"} textAlign="center">
+                    Your Share
+                  </Text>
+                </VStack>
+                <VStack w="25%" h="40px" justifyContent={"center"}>
+                  <Text
+                    color={"#D9F1FF"}
+                    textAlign="center"
+                    fontWeight={"bold"}
+                    fontSize={"18px"}
+                  >
+                    {Math.round(
+                      (parseInt(order.shares[1]) /
+                        (parseInt(order.shares[0]) +
+                          parseInt(order.shares[1]))) *
+                        100
+                    )}
+                    %
+                  </Text>
+                </VStack>
+                <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                  <Text
+                    color={"#D9F1FF"}
+                    textAlign="center"
+                    fontWeight={"bold"}
+                  >
+                    ₹{order.shares[0]}
+                  </Text>
+                  <Text color={"#D9F1FF"} textAlign="center">
+                    Partner Share
+                  </Text>
+                </VStack>
               </HStack>
-            </Stack>
-          )
-        ) : (
-          <>
-            {isAgreer && order.status === "Awaiting Agreement" ? (
-              <Stack>
-                <AppButton
-                  secondary
-                  onPress={() => {
-                    agreeOrder();
-                  }}
-                  width={"100%"}
-                >
-                  <Text color="white">Agree</Text>
-                </AppButton>
-                <HStack space="2">
-                  <Text color="white"> Partner</Text>
-                  <Text color="white">
-                    {isAgreer
-                      ? order.buyersEmail[1].replace("_", ".")
-                      : order.buyersEmail[0].replace("_", ".")}
-                  </Text>
-                </HStack>
-              </Stack>
-            ) : (
-              <Stack>
-                <Text color="white">{order.status}</Text>
-                <HStack space="2">
-                  <Text color="white"> Partner</Text>
-                  <Text color="white">
-                    {isAgreer
-                      ? order.buyersEmail[1].replace("_", ".")
-                      : order.buyersEmail[0].replace("_", ".")}
-                  </Text>
-                </HStack>
-              </Stack>
-            )}
-          </>
+            </VStack>
+            <VStack
+              w="100%"
+              mx="auto"
+              my="2"
+              justifyContent={"space-between"}
+              mt="2"
+              h="20px"
+            >
+              <Text color={"#D9F1FF"} textAlign="center">
+                Transfers:
+              </Text>
+            </VStack>
+            <HStack
+              w="100%"
+              h="40px"
+              mx="auto"
+              my="2"
+              justifyContent={"space-between"}
+              mt="4"
+            >
+              <VStack w="25%" h="40px" justifyContent={"flex-start"}>
+                <Text color={"#D9F1FF"} textAlign="center" fontWeight={"bold"}>
+                  ₹100
+                </Text>
+                <Text color={"#D9F1FF"} textAlign="center">
+                  On Approval
+                </Text>
+              </VStack>
+              <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                <Text color={"#D9F1FF"} textAlign="center" fontWeight={"bold"}>
+                  ₹200
+                </Text>
+                <Text color={"#D9F1FF"} textAlign="center">
+                  On Processed
+                </Text>
+              </VStack>
+              <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                <Text color={"#D9F1FF"} textAlign="center" fontWeight={"bold"}>
+                  ₹300
+                </Text>
+                <Text color={"#D9F1FF"} textAlign="center">
+                  On Delivery
+                </Text>
+              </VStack>
+            </HStack>
+          </VStack>
         )}
-        </VStack>
-      </ServiceListComponent>
-    </VStack>
-    // <VStack bg="#12202E" my="3" p="4" rounded={"md"}>
-    //   <HStack justifyContent={"space-between"}>
-    //     <Image source={{ uri: order.image }} size={"xl"} />
-    //     <VStack>
-    //       <OrderDetailsTextComponent name="Name" value={order.nameOfService} />
-    //       <OrderDetailsTextComponent name="Price" value={order.price} />
-    //       <OrderDetailsTextComponent name="Qty" value={order.numberOfItems} />
-    //       <OrderDetailsTextComponent name="Total" value={order.total} />
-    //       <OrderDetailsTextComponent name="Status" value={order.status} />
-    //       {order.status === "Completed" && (
-    //         <TouchableOpacity
-    //           onPress={() => {
-    //             updateOrderStatus(order.orderId, "EscrowCompleted");
-    //           }}
-    //         >
-    //           <Text color="white">Complete Escrow</Text>
-    //         </TouchableOpacity>
-    //       )}
-    //     </VStack>
-    //   </HStack>
-    // </VStack>
+      </VStack>
+      {/* <VStack bg="#09151E">
+        <ServiceListComponent
+          image={order.image}
+          name={order.nameOfService}
+          category={"Quantity: " + order.numberOfItems.toString()}
+          price={order.total}
+        >
+          <VStack>
+            {order.status === "Completed" ? (
+              loading ? (
+                <Spinner size="lg" mx="auto" color="#D9F1FF" />
+              ) : (
+                <Stack>
+                  <AppButton
+                    secondary
+                    onPress={() => {
+                      updateOrderStatus(order.orderId, "EscrowCompleted");
+                    }}
+                    width={"100%"}
+                  >
+                    <Text color="white">Complete Escrow</Text>
+                  </AppButton>
+                </Stack>
+              )
+            ) : (
+              <>
+                {isAgreer && order.status === "Awaiting Agreement" ? (
+                  <Stack>
+                    <AppButton
+                      secondary
+                      onPress={() => {
+                        agreeOrder();
+                      }}
+                      width={"100%"}
+                    >
+                      <Text color="white">Agree</Text>
+                    </AppButton>
+                  </Stack>
+                ) : (
+                  <Stack>
+                    <Text color="white">{order.status}</Text>
+                  </Stack>
+                )}
+              </>
+            )}
+          </VStack>
+        </ServiceListComponent>
+      </VStack> */}
+    </>
   );
 };
 

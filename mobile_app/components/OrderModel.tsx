@@ -8,12 +8,13 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Slider,
   Stack,
   Text,
   VStack,
 } from "native-base";
 import { background } from "native-base/lib/typescript/theme/styled-system";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { SafeAreaView, TouchableOpacity } from "react-native";
 import db from "../firebase";
 import { uuidv4 } from "../pages/ProfileScreen";
@@ -63,6 +64,98 @@ const QuantityButtons = ({
       >
         <FontAwesome name="plus" size={24} color="white" />
       </AppButton>
+    </>
+  );
+};
+
+const AppSlider = ({
+  title,
+  subtitle,
+  endValue = 100,
+  slidervalue,
+  setSliderValue,
+  startValue = 50,
+  total,
+}: {
+  title: string;
+  subtitle: string;
+  endValue: number;
+  slidervalue: any;
+  setSliderValue: any;
+  startValue: number;
+  total: any;
+}) => {
+  const [v, setV] = useState(startValue);
+
+  useEffect(() => {
+    setSliderValue(Math.floor((v / 100) * total).toString());
+  }, [total, v]);
+  return (
+    <>
+      <VStack w="100%" h="80px" mx="auto">
+        <HStack my="auto">
+          <AppSubtitle>{title}</AppSubtitle>
+          {subtitle && (
+            <Text color={"#D9F1FF"} fontSize={"12px"} pt="1.5">
+              {subtitle}
+            </Text>
+          )}
+        </HStack>
+        <HStack
+          w="90%"
+          h="30px"
+          rounded={"full"}
+          bg={total.toString() != slidervalue ? "#193F60" : "#D9F1FF"}
+          justifyContent={"flex-start"}
+          alignSelf="center"
+          my="auto"
+          mt="-2"
+        >
+          <Slider
+            defaultValue={startValue}
+            maxValue={endValue}
+            w="90%"
+            step={10}
+            sliderTrackHeight={30}
+            onChange={(v) => setV(v)}
+          >
+            <Slider.Track rounded={"full"} bg="#193F60">
+              <Slider.FilledTrack bg="#D9F1FF" />
+            </Slider.Track>
+            <Slider.Thumb bg="#D9F1FF">
+              <HStack w="50px" h="35px" px="1" pt="10px" zIndex={10}>
+                <Text
+                  w="100%"
+                  h={"100%"}
+                  textAlign={"center"}
+                  fontSize="11.5px"
+                  fontWeight={"black"}
+                >
+                  ₹{slidervalue}
+                </Text>
+              </HStack>
+            </Slider.Thumb>
+          </Slider>
+          {total.toString() != slidervalue && (
+            <VStack
+              w="50px"
+              h="30px"
+              justifyContent={"space-around"}
+              ml="-25px"
+            >
+              <Text
+                alignSelf="center"
+                textAlign={"center"}
+                fontSize="11.5px"
+                fontWeight={"black"}
+                color="#D9F1FF"
+              >
+                ₹{total}
+              </Text>
+            </VStack>
+          )}
+        </HStack>
+      </VStack>
     </>
   );
 };
@@ -126,9 +219,37 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   const [partnerParty, setPartnerParty] = useState("");
   const [isCustom, setIsCustom] = useState(false);
   const [share, setShare] = useState("0");
+  // const [maxApprove, setMaxApprove] = useState(100);
+  // const [maxProcess, setMaxProcess] = useState(100);
+  // const [maxDelivery, setMaxDelivery] = useState(100);
   const [approvalAmount, setApprovalAmount] = useState("0");
   const [processAmount, setProcessAmount] = useState("0");
   const [deliveryAmount, setDeliveryAmount] = useState("0");
+
+  // useEffect(() => {
+  //   setMaxApprove(
+  //     Math.round(
+  //       (modelService.price * numberOfItems -
+  //         (parseInt(deliveryAmount) + parseInt(processAmount))) /
+  //         (modelService.price * numberOfItems)
+  //     ) * 100
+  //   );
+  //   setMaxProcess(
+  //     Math.round(
+  //       (modelService.price * numberOfItems -
+  //         (parseInt(deliveryAmount) + parseInt(approvalAmount))) /
+  //         (modelService.price * numberOfItems)
+  //     ) * 100
+  //   );
+  //   setMaxDelivery(
+  //     Math.round(
+  //       (modelService.price * numberOfItems -
+  //         (parseInt(approvalAmount) + parseInt(processAmount))) /
+  //         (modelService.price * numberOfItems)
+  //     ) * 100
+  //   );
+  //   console.log(maxApprove, maxProcess, maxDelivery);
+  // }, [approvalAmount, processAmount, deliveryAmount]);
   async function createCustomEscrow() {
     const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
@@ -212,6 +333,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
   }
 
   async function orderService() {
+    const [share, setShare] = useState("599");
     const id = (await uuidv4()).toString();
     let email = await getValueFor("email");
 
@@ -287,7 +409,7 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
               title={modelService.nameOfService}
               onPress={() => setOpen(false)}
             ></AppTitleBar>
-            <ScrollView h="90%" pt="2">
+            <ScrollView h="100%" pt="2">
               <VStack mx="auto" w="100%" h="100%" space="4" px="4">
                 <VStack rounded="lg">
                   <ServiceListComponent
@@ -303,54 +425,222 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                   </ServiceListComponent>
                 </VStack>
                 {!isCustom && (
-                  <VStack mx="auto" w="100%" rounded={"lg"}>
-                    <AppButton onPress={() => setIsCustom(true)}>
-                      <Text color="white">Add Parties</Text>
+                  <HStack mx="auto" w="100%" rounded={"lg"} h="50px">
+                    <AppButton
+                      onPress={() => setIsCustom(true)}
+                      width={"100%"}
+                      secondary={false}
+                    >
+                      <Text color="white">Add Partner</Text>
                     </AppButton>
-                  </VStack>
+                  </HStack>
                 )}
                 {isCustom && (
                   <VStack mx="auto" w="100%" rounded={"lg"}>
+                    <VStack
+                      mx="auto"
+                      w="100%"
+                      rounded={"lg"}
+                      bg="#12202E"
+                      px={4}
+                      py={2}
+                    >
+                      <HStack
+                        w="100%"
+                        h="40px"
+                        mx="auto"
+                        my="2"
+                        justifyContent={"space-between"}
+                      >
+                        <Stack w="80%" my="auto">
+                          <Text
+                            fontSize={"18px"}
+                            fontWeight="bold"
+                            color={"#fff"}
+                          >
+                            Second Partner
+                          </Text>
+                        </Stack>
+                        <Stack alignSelf={"flex-end"}>
+                          <AppButton
+                            onPress={() => setIsCustom(false)}
+                            secondary={false}
+                            width={"40px"}
+                          >
+                            <FontAwesome name="close" size={20} color="white" />
+                          </AppButton>
+                        </Stack>
+                      </HStack>
+                      <VStack w="100%" h="70px" mx="auto" my="2" mt="4">
+                        <Stack my="auto">
+                          <AppSubtitle>Email</AppSubtitle>
+                        </Stack>
+                        <HStack w="100%" h="40px" mx="auto" my="2">
+                          <AppInput
+                            placeholder="Enter Party Email"
+                            onChangeText={(text: SetStateAction<string>) =>
+                              setPartnerParty(
+                                text.toString().toLocaleLowerCase()
+                              )
+                            }
+                            width={"100%"}
+                            keyboardType={undefined}
+                            maxLength={1000}
+                            value={partnerParty}
+                            isFocused={false}
+                            secondary={true}
+                          />
+                        </HStack>
+                      </VStack>
+                      <AppSlider
+                        title="Split"
+                        endValue={100}
+                        slidervalue={share}
+                        setSliderValue={setShare}
+                        startValue={50}
+                        total={modelService.price * numberOfItems}
+                      ></AppSlider>
+                      <HStack
+                        w="100%"
+                        h="40px"
+                        mx="auto"
+                        my="2"
+                        justifyContent={"space-between"}
+                      >
+                        <VStack w="25%" h="40px" justifyContent={"flex-start"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                          >
+                            ₹{share}
+                          </Text>
+                          <Text color={"#D9F1FF"} textAlign="center">
+                            Your Share
+                          </Text>
+                        </VStack>
+                        <VStack w="25%" h="40px" justifyContent={"center"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                            fontSize={"18px"}
+                          >
+                            {Math.round(
+                              (parseInt(share) /
+                                (modelService.price * numberOfItems)) *
+                                100
+                            )}
+                            %
+                          </Text>
+                        </VStack>
+                        <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                          >
+                            ₹
+                            {modelService.price * numberOfItems -
+                              parseInt(share)}
+                          </Text>
+                          <Text color={"#D9F1FF"} textAlign="center">
+                            Partner Share
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    </VStack>
                     <VStack
                       mx="auto"
                       mt="4"
                       w="100%"
                       rounded={"lg"}
                       bg="#12202E"
-                      p="4"
+                      px={4}
+                      py={2}
                     >
-                      <Stack w="100%" h="12">
-                        <AppInput
-                          placeholder="Enter Party Email"
-                          onChangeText={(text: SetStateAction<string>) =>
-                            setPartnerParty(text.toString().toLocaleLowerCase())
-                          }
-                          width={"100%"}
-                          keyboardType={undefined}
-                          maxLength={1000}
-                          value={partnerParty}
-                          isFocused={false}
-                          secondary={false}
-                        />
-                      </Stack>
-                      <HStack w="100%" h="12">
-                        <Text color="white" my="auto">
-                          Share
+                      <Stack w="80%" my="auto">
+                        <Text
+                          fontSize={"18px"}
+                          fontWeight="bold"
+                          color={"#fff"}
+                        >
+                          Tranfers
                         </Text>
-                        <AppInput
-                          placeholder="Enter Share Percentage"
-                          onChangeText={(text: SetStateAction<string>) =>
-                            setShare(text)
-                          }
-                          width={"70%"}
-                          keyboardType={undefined}
-                          maxLength={1000}
-                          value={share}
-                          isFocused={false}
-                          secondary={false}
-                        />
+                      </Stack>
+                      <AppSlider
+                        title="Approval"
+                        subtitle="(amount released on order approval)"
+                        endValue={100}
+                        slidervalue={approvalAmount}
+                        setSliderValue={setApprovalAmount}
+                        startValue={10}
+                        total={Math.round(modelService.price * numberOfItems)}
+                      ></AppSlider>
+                      <AppSlider
+                        title="Processed"
+                        subtitle="(amount released on order processing)"
+                        endValue={100}
+                        slidervalue={processAmount}
+                        setSliderValue={setProcessAmount}
+                        startValue={10}
+                        total={Math.round(modelService.price * numberOfItems)}
+                      ></AppSlider>
+                      <AppSlider
+                        title="Delivery"
+                        subtitle="(amount released on order delivery)"
+                        endValue={100}
+                        slidervalue={deliveryAmount}
+                        setSliderValue={setDeliveryAmount}
+                        startValue={10}
+                        total={Math.round(modelService.price * numberOfItems)}
+                      ></AppSlider>
+                      <HStack
+                        w="100%"
+                        h="40px"
+                        mx="auto"
+                        my="2"
+                        justifyContent={"space-between"}
+                        mt="4"
+                      >
+                        <VStack w="25%" h="40px" justifyContent={"flex-start"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                          >
+                            ₹{approvalAmount}
+                          </Text>
+                          <Text color={"#D9F1FF"} textAlign="center">
+                            On Approval
+                          </Text>
+                        </VStack>
+                        <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                          >
+                            ₹{processAmount}
+                          </Text>
+                          <Text color={"#D9F1FF"} textAlign="center">
+                            On Processed
+                          </Text>
+                        </VStack>
+                        <VStack w="25%" h="40px" justifyContent={"flex-end"}>
+                          <Text
+                            color={"#D9F1FF"}
+                            textAlign="center"
+                            fontWeight={"bold"}
+                          >
+                            ₹{deliveryAmount}
+                          </Text>
+                          <Text color={"#D9F1FF"} textAlign="center">
+                            On Delivery
+                          </Text>
+                        </VStack>
                       </HStack>
-                      <HStack w="100%" h="12">
+                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
                         <Text color="white" my="auto">
                           Approval
                         </Text>
@@ -364,10 +654,10 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                           maxLength={1000}
                           value={approvalAmount}
                           isFocused={false}
-                          secondary={false}
+                          secondary={true}
                         />
-                      </HStack>
-                      <HStack w="100%" h="12">
+                      </HStack> */}
+                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
                         <Text color="white" my="auto">
                           Processed
                         </Text>
@@ -381,10 +671,10 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                           maxLength={1000}
                           value={processAmount}
                           isFocused={false}
-                          secondary={false}
+                          secondary={true}
                         />
-                      </HStack>
-                      <HStack w="100%" h="12">
+                      </HStack> */}
+                      {/* <HStack w="100%" h="40px" mx="auto" my="2">
                         <Text color="white" my="auto">
                           Delivery
                         </Text>
@@ -398,12 +688,13 @@ const OrderModel = ({ isOpen, setOpen, modelService }: any) => {
                           maxLength={1000}
                           value={deliveryAmount}
                           isFocused={false}
-                          secondary={false}
+                          secondary={true}
                         />
-                      </HStack>
+                      </HStack> */}
                     </VStack>
                   </VStack>
                 )}
+                <VStack mx="auto" w="100%" h="150px"></VStack>
               </VStack>
             </ScrollView>
           </SafeAreaView>
