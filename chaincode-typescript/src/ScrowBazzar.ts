@@ -291,6 +291,7 @@ export class ScrowBazzarContract extends Contract {
   @Transaction(true)
   async Burn(ctx: Context, from: string, amount: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
+
     const totalSupplyBytes = await ctx.stub.getState(totalSupplyKey);
     const totalSupply = parseInt(totalSupplyBytes.toString(), 10);
     const fromBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [from]);
@@ -298,10 +299,13 @@ export class ScrowBazzarContract extends Contract {
     const fromBalance = parseInt(fromBalanceBytes.toString(), 10);
     const newTotalSupply = totalSupply - parseInt(amount, 10);
     const newFromBalance = fromBalance - parseInt(amount, 10);
+
     await ctx.stub.putState(totalSupplyKey, Buffer.from(newTotalSupply.toString()));
     await ctx.stub.putState(fromBalanceKey, Buffer.from(newFromBalance.toString()));
+
     const burnEvent = { from, amount };
     ctx.stub.setEvent("Burn", Buffer.from(stringify(burnEvent)));
+
     return true;
   }
 
@@ -412,29 +416,6 @@ export class ScrowBazzarContract extends Contract {
     return orderJSON.toString();
   }
 
-
-
-  // @Transaction()
-  // public async UpdateOrder(
-  //   ctx: Context,
-  //   id: string,
-  //   state: string
-  // ): Promise<void> {
-  //   //check if contract is initialized
-  //   await this.CheckInitialized(ctx);
-  //   const exists = await this.OrderExists(ctx, id);
-  //   if (!exists) {
-  //     throw new Error(`The Order ${id} does not exist`);
-  //   }
-
-  //   const orderJSON = await ctx.stub.getState(id);
-  //   const order = JSON.parse(orderJSON.toString()) as Order;
-  //   order.Status = state;
-  //   return ctx.stub.putState(
-  //     id,
-  //     Buffer.from(stringify(sortKeysRecursive(order)))
-  //   );
-  // }
 
   /**
    * @param ctx the transaction context
@@ -646,9 +627,25 @@ export class ScrowBazzarContract extends Contract {
     return JSON.stringify(allResults);
   }
 
-
+  /**
+   * @param ctx the transaction context
+   * @param id the order id
+   * @param seller the seller account
+   * @param amount the amount to be escrowed
+   * @param buyers string of comma separated buyer accounts
+   * @param shares string of comma separated shares
+   * @param customTranfer string of comma separated custom transfer on event
+   * @returns boolean true if the order was created successfully
+   * @event CreateCustomEscrowOrder the create custom escrow order event emitted when an order is created
+   **/
   @Transaction()
-  public async CreateCustomEscrowOrder(ctx: Context, id: string, seller: string, amount: string, buyers: string, shares: string, customTranfer: string): Promise<boolean> {
+  public async CreateCustomEscrowOrder(ctx: Context,
+    id: string,
+    seller: string,
+    amount: string,
+    buyers: string,
+    shares: string,
+    customTranfer: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
     const exists = await this.OrderExists(ctx, id);
     if (exists) {
@@ -685,7 +682,7 @@ export class ScrowBazzarContract extends Contract {
       orderList.push(id);
       await ctx.stub.putState(buyerOrderListKey, Buffer.from(stringify(orderList)));
     }
-    let tot= 0;
+    let tot = 0;
 
     for (const shares in OwnerShares) {
       //transfer money to escrow
@@ -707,7 +704,7 @@ export class ScrowBazzarContract extends Contract {
       const fromNewBalance = fromCurrentBalance - parseInt(OwnerShares[shares]);
       await ctx.stub.putState(fromBalanceKey, Buffer.from(fromNewBalance.toString()));
 
-      tot+= parseInt(OwnerShares[shares]);
+      tot += parseInt(OwnerShares[shares]);
     }
 
     const toBalanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
@@ -719,7 +716,7 @@ export class ScrowBazzarContract extends Contract {
     const toNewBalance = toCurrentBalance + tot;
 
     await ctx.stub.putState(toBalanceKey, Buffer.from(toNewBalance.toString()));
-    
+
     const sellerOrderListKey = ctx.stub.createCompositeKey(orderListPrefix, [seller]);
     const sellerOrderListBytes = await ctx.stub.getState(sellerOrderListKey);
     let orderList = [];
@@ -737,6 +734,13 @@ export class ScrowBazzarContract extends Contract {
 
   }
 
+  /**
+   * @param ctx the transaction context
+   * @param id the order id
+   * @returns boolean true if the order was approved successfully
+   * @event ApproveCustomEscrowOrder the approve custom escrow order event emitted when an order is approved
+   * @event Transfer the transfer event emitted when an order is approved
+   **/
   @Transaction()
   public async ApproveCustomEscrowOrder(ctx: Context, id: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
@@ -771,6 +775,14 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+
+  /**
+   * @param ctx the transaction context
+   * @param id the order id
+   * @returns boolean true if the order was processed successfully
+   * @event ProcessCustomEscrowOrder the process custom escrow order event emitted when an order is processed
+   * @event Transfer the transfer event emitted when an order is processed
+   **/
   @Transaction()
   public async ProcessCustomEscrowOrder(ctx: Context, id: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
@@ -804,6 +816,13 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+  /**
+   * @param ctx the transaction context
+   * @param id the order id
+   * @returns boolean true if the order was completed successfully
+   * @event CompleteCustomEscrowOrder the complete custom escrow order event emitted when an order is completed
+   * @event Transfer the transfer event emitted when an order is completed
+   **/
   @Transaction()
   public async CompleteCustomEscrowOrder(ctx: Context, id: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
@@ -837,6 +856,13 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+  /**
+   * @param ctx the transaction context
+   * @param id the order id
+   * @returns boolean true if the order was accepted successfully
+   * @event AcceptCustomEscrowOrder the accept custom escrow order event emitted when an order is accepted
+   * @event Transfer the transfer event emitted when an order is accepted
+   **/
   @Transaction()
   public async AcceptOrderDelivery(ctx: Context, id: string): Promise<boolean> {
     await this.CheckInitialized(ctx);
@@ -853,7 +879,9 @@ export class ScrowBazzarContract extends Contract {
     else {
       throw new Error(`The Order ${id} is not completed`);
     }
+
     const amountToTransferOnEvent = order.CustomTransferOnEvent[3];
+
     if (amountToTransferOnEvent !== "0") {
       const transferResp = await this.Transfer(ctx, escrowKey, order.Account, amountToTransferOnEvent);
       if (!transferResp) {
@@ -870,6 +898,10 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+  /**
+   * @param ctx the transaction context
+   * @returns string the escrow balance
+   **/
   @Transaction(false)
   public async EscrowBalance(ctx: Context): Promise<string> {
     const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [escrowKey]);
@@ -880,7 +912,13 @@ export class ScrowBazzarContract extends Contract {
     return balanceBytes.toString();
   }
 
-
+  /**
+   * @param ctx the transaction context
+   * @param from the from account
+   * @param to the to account
+   * @param value the value to transfer
+   * @returns boolean true if the transfer was successful
+   * */
   async _transfer(ctx: Context, from: string, to: string, value: string): Promise<boolean> {
 
     if (from === to) {
@@ -935,6 +973,7 @@ export class ScrowBazzarContract extends Contract {
     return true;
   }
 
+  // add two number checking for overflow
   add(a: number, b: number) {
     let c = a + b;
     if (a !== c - b || b !== c - a) {
@@ -943,7 +982,7 @@ export class ScrowBazzarContract extends Contract {
     return c;
   }
 
-  // add two number checking for overflow
+  // subtract two number checking for overflow
   sub(a: number, b: number) {
     let c = a - b;
     if (a !== c + b || b !== a - c) {
@@ -951,6 +990,12 @@ export class ScrowBazzarContract extends Contract {
     }
     return c;
   }
+
+
+  /**
+   * @param ctx the transaction context
+   * @returns boolean true if the contract is initialized
+   **/
   @Transaction(false)
   async CheckInitialized(ctx: Context): Promise<boolean> {
     const nameBytes = await ctx.stub.getState(nameKey);
