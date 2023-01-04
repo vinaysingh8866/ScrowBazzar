@@ -14,9 +14,9 @@ Install Node Modules and starting locally
 ```
 
 ## Screenshots
-<img src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/ScreenShot3.png" data-canonical-src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/Screenshot2.png" width="200" height="400" />
-<img src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/ScreenShot4.png" data-canonical-src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/Screenshot2.png" width="200" height="400" />
-<img src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/ScreenShot.png" data-canonical-src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/Screenshot2.png" width="200" height="400" />
-<img src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/Screenshot2.png" data-canonical-src="https://raw.githubusercontent.com/vinaysingh8866/ScrowBazzar/master/presentation/Screenshot2.png" width="200" height="400" />
+<img src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot3.png?raw=true" data-canonical-src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot3.png?raw=true" width="200" height="400" />
+<img src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot4.png?raw=true" data-canonical-src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot4.png?raw=true" width="200" height="400" />
+<img src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot.png?raw=true" data-canonical-src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/ScreenShot.png?raw=true" width="200" height="400" />
+<img src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/Screenshot2.png?raw=true" data-canonical-src="https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/Screenshot2.png?raw=true" width="200" height="400" />
 
 
