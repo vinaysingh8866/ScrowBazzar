@@ -1,3 +1,12 @@
+## Installation
+
+Install dependencies and run backend
+
+```bash
+  yarn
+  yarn start
+```
+    
 
 ## API Reference
 
