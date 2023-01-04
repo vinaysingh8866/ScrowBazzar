@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
  */
-// Deterministic JSON.stringify()
+
 import {
   Context,
   Contract,
@@ -13,11 +13,12 @@ import stringify from "json-stringify-deterministic";
 import sortKeysRecursive from "sort-keys-recursive";
 import { Order, CustomOrder } from "./order";
 
-// Define objectType names for prefix
+
+// Prefixes for composite keys
 const balancePrefix = "balance";
 const allowancePrefix = "allowance";
 const orderListPrefix = "orderList";
-// Define key names for options
+// Keys for the ledger
 const nameKey = "name";
 const symbolKey = "symbol";
 const decimalsKey = "decimals";
