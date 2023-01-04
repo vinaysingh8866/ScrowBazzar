@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {ScrowBazzarContract} from './ScrowBazzar';
+import {PayCrow} from './PayCrow';
 
-export {ScrowBazzarContract} from './ScrowBazzar';
+export {PayCrow} from './PayCrow';
 
-export const contracts: any[] = [ScrowBazzarContract];
+export const contracts: any[] = [PayCrow];
