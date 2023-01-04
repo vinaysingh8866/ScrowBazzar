@@ -1,7 +1,7 @@
 
 # PayCrow
 
-A decentralised Contracts as a Service built on Hyperledger Fabric
+A decentralised Escrow as a Service built on Hyperledger Fabric
 
 ## Demo
 
