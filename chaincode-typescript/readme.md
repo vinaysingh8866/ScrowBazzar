@@ -1,148 +1,100 @@
 
-## API Reference
+# Chaincode
+Escrow contract Chaincode
 
-#### Initialize Contract
 
-```http
-  GET /init
+
+
+## Installation
+
+Install on test network
+
+```bash
+  ./network.sh up createChannel -c escrowChannel -ca && ./network.sh deployCC -ccn escrow -ccp ../chaincode-typescript/ -ccl typescript
+```
+
+## Interacting with contract on test network
+
+Invoking Chaincode
+
+```terminal
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":["escrowtest","inr", "2"]}'
+
+```
+
+Mint Tokens
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"Mint","Args":["vinay","20000"]}'
+```
+
+Get Balance 
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"BalanceOf","Args":["vinay"]}'
+````
+
+Create single party Escrow Order with basic escrow function
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateOrder","Args":["0004","1000","vinay","hdsp"]}'
+```
+
+Read Order
+```
+peer chaincode query -C escrowchannel -n escrow -c '{"Args":["ReadOrder","0001"]}'
+```
+
+Get OrderList of Seller
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"GetOrderList","Args":["hdsp"]}'
+```
+
+Approve order
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"ApproveOrder","Args":["0004"]}'
+```
+
+Process Order
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"ProcessOrder","Args":["0004"]}'
+```
+
+Complete Order
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CompleteOrder","Args":["0004"]}'
+```
+
+Complete escrow payment
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CompleteEscrow","Args":["0004"]}'
+```
+
+Custom multi party escrow order with variable payment agreements
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateCustomEscrowOrder","Args":["0002","hdsp","1000","userA,userB","500,500","100,0,0,900"]}'
+```
+
+Approve Order
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"ApproveCustomEscrowOrder","Args":["0002"]}'
+```
+
+Process Order
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"ProcessCustomEscrowOrder","Args":["0002"]}'
+```
+
+Complete Delivery
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CompleteCustomEscrowOrder","Args":["0002"]}'
+```
+
+Accept Delivery 
+```
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C escrowchannel -n escrow --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"AcceptOrderDelivery","Args":["0002"]}'
 ```
 
 
-#### Mint Tokens
-
-```http
-  GET /mint_tokens
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `user`      | `string` | **Required**. User to mint tokens to |
-| `amount`      | `string` | **Required**. Amount of tokens to mint |
-
-#### Get balance
-
-```http
-  GET /balance_of
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `user`      | `string` | **Required**. User to get the balance for |
-
-#### Create Signle party Escrow Order
-
-```http
-  GET /create_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. Unique id for order |
-| `amount`      | `string` | **Required**. amount for order |
-| `buyer`      | `string` | **Required**. buyer id for order |
-| `seller`      | `string` | **Required**. seller id for order |
-
-#### Get order list of user
-
-```http
-  GET /get_order_list
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `seller`      | `string` | **Required**. User to get the order list for |
-
-#### Approve Signle party Escrow Order
-
-```http
-  GET /approve_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to approve |
-
-#### Process Signle party Escrow Order
-
-```http
-  GET /process_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to process |
-
-#### Complete Signle party Escrow Order
-
-```http
-  GET /complete_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to complete |
 
 
-#### Complete Escrow Signle party Escrow Order
 
-```http
-  GET /complete_escrow
-```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to complete |
 
-#### Create Multi party Escrow Order with payment customization
-
-```http
-  GET /create_custom_escrow_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. unique id for order |
-| `seller`      | `string` | **Required**. seller id for order |
-| `buyers`      | `string` | **Required**. buyer ids string sperated by comma for order |
-| `shares`      | `string` | **Required**. shares sperated by comma for order |
-| `customTransfer`      | `string` | **Required**. transfer amount for each step sperated by comma for order |
-
-#### Approve Multi party Escrow Order with payment customization
-
-```http
-  GET /approve_custom_escrow_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to approve |
-
-#### Process Multi party Escrow Order with payment customization
-
-```http
-  GET /process_custom_escrow_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to approve |
-
-#### Complete Multi party Escrow Order with payment customization
-
-```http
-  GET /complete_custom_escrow_order
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to approve |
-
-#### Accept Order Delivery Multi party Escrow Order with payment customization
-
-```http
-  GET /accept_order_delivery
-```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `orderid`      | `string` | **Required**. id for order to approve |
