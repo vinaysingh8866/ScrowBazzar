@@ -25,3 +25,6 @@ https://drive.google.com/file/d/1RYPsC7O_keDENWH6DOUWj3WXfyFKDnCc/view?usp=shari
 ![10](https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/P10.png?raw=true)
 ![11](https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/P11.png?raw=true)
 ![12](https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/P12.png?raw=true)
+![13](https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/P13.png?raw=true)
+![14](https://github.com/vinaysingh8866/EscrowBazzar/blob/master/presentation/P14.png?raw=true)
+
